@@ -179,7 +179,7 @@ smallfunc=Fit[Select[ihProperty,#[[1]]<=15&],{1,x},x];
 largefunc=Fit[Select[ihProperty,#[[1]]>=40&],{1,x},x];
 ihProperty2=Flatten[{Table[{x,smallfunc},{x,noteRangeNum[[1]]-48,temp[[1]]-1}],ihProperty,Table[{x,largefunc},{x,temp[[-1]]+1,noteRangeNum[[2]]+48}]},1];
 ihPropertyFunction=Interpolation[ihProperty2];
-ihPlot=Show[Plot[ihPropertyFunction[k],{k,noteRangeNum[[1]],noteRangeNum[[2]]},PlotRange->All,Axes->None,ImageSize->1600,Frame->True,AspectRatio->1/4,PlotStyle->Directive[Thick,Red],FrameLabel->{None,"Inharmonicity Value"}],Graphics[Flatten[{Black,PointSize[.007],Table[Point[ihProperty[[i]]],{i,Length[ihProperty]}],Black,Table[Text[num2note[ihProperty[[i,1]]],{ihProperty[[i,1]],ihProperty[[i,2]]+0.3If[OddQ[ihProperty[[i,1]]],1,-1]},Background->White],{i,Length[ihProperty]}]}]],FrameTicks->{None,Automatic},GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,-100,100}]},GridLinesStyle->LightBlue];
+ihPlot=Show[Plot[ihPropertyFunction[k],{k,noteRangeNum[[1]],noteRangeNum[[2]]},PlotRange->All,Axes->None,ImageSize->1600,Frame->True,AspectRatio->1/4,PlotStyle->Directive[Thick,Red],FrameLabel->{"Keys","Inharmonicity Value"}],Graphics[Flatten[{Black,PointSize[.007],Table[Point[ihProperty[[i]]],{i,Length[ihProperty]}],Black,Table[Text[num2note[ihProperty[[i,1]]],{ihProperty[[i,1]],ihProperty[[i,2]]+0.3If[OddQ[ihProperty[[i,1]]],1,-1]},Background->White],{i,Length[ihProperty]}]}]],FrameTicks->{None,Automatic},GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,-100,100}]},GridLinesStyle->LightRed];
 (*restore ih overtone property function*)
 ihfunc[k_,n_]:=n*Sqrt[1+E^ihPropertyFunction[k]/ihFitScaling*(n-1)^2];ihfunc);
 ihFunction=ihFunctionExtraction[ihProperty];
@@ -222,7 +222,7 @@ tunDeviation=Flatten[{Table[overtoneDifferenceCents=freqRatio2cents[ihFunction[j
 ,{j,noteRangeNum[[1]],tunSplitPoint}],Table[overtoneDifferenceCents=freqRatio2cents[ihFunction[j-tunTenorOctavePitch,tunMethod[[2,2]]]/ihFunction[j,tunMethod[[2,1]]]/tunTenorOctave];
 (overtoneDifferenceCents-(tunTrialPloy[j]-tunTrialPloy[j-tunTenorOctavePitch]))/.tunOptimize[[2]]
 ,{j,tunSplitPoint+1,noteRangeNum[[2]]}]}];
-tunDeviationPlot=Graphics[Flatten[{Table[{If[Mod[x-3,12]==0,{GrayLevel[.4],Disk[{x,tunDeviation[[x+1]]},.6]}],If[num2wb[x],Black,If[x==48,Red,LightGray]],Disk[{x,tunDeviation[[x+1]]},.3]},{x,noteRangeNum[[1]],noteRangeNum[[2]]}]}],ImageSize->1600,Frame->True,GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,-100,100,2}]},GridLinesStyle->LightBlue,FrameLabel->{"Keys","Deviation (cents)"},FrameTicks->{None,Automatic}];
+tunDeviationPlot=Graphics[Flatten[{Table[{If[Mod[x-3,12]==0,{GrayLevel[.4],Disk[{x,tunDeviation[[x+1]]},.6]}],If[num2wb[x],Black,If[x==48,Red,LightGray]],Disk[{x,tunDeviation[[x+1]]},.3]},{x,noteRangeNum[[1]],noteRangeNum[[2]]}]}],ImageSize->1600,Frame->True,GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,-100,100,2}]},GridLinesStyle->LightBlue,FrameLabel->{None,"Deviation (cents)"},FrameTicks->{None,Automatic}];
 
 
 (**********************************************************************************)
@@ -266,5 +266,5 @@ TableHeadings->{Table[num2note[k],{k,noteRangeNum[[1]],noteRangeNum[[2]]}],Table
 (**********************************************************************************)
 (**********************************************************************************)
 (*8. return result*)
-Column[{Deploy[Framed[Column[{ihPlot,tunCurvePlot,tunDeviationPlot}]]],tunTable}]
+Column[{Deploy[Framed[Column[{tunCurvePlot,tunDeviationPlot,ihPlot}]]],tunTable}]
 ]
