@@ -2,7 +2,7 @@
 Similar to [tunelab](https://www.tunelab-world.com/).
 Algorithm is complicated and will be written in document.
 
-The algorithm is fully construct by myself, it dose not violate the copyright. However, the temperment file is copied by tunelab apps, it is under the copyright of tunelab.
+The algorithm is fully construct by myself, it dose not violate the copyright. However, the temperment file is copied from tunelab apps, it is under the copyright of tunelab.
 ## Demo
 There are 2 fully sampled pianos as demo.
 ### Wesleiter Upright 123
