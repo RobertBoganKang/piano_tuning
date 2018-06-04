@@ -1,7 +1,8 @@
 (* ::Package:: *)
 
 Clear["Global`*"];
-Options[pianoTuner]={noteRange->{"A0","C8"},deleteNotes->{},noteStart->"A0"};
+Options[pianoTuner]={noteRange->{"A0","C8"},deleteNotes->{},noteStart->"A0",tuningSplit->"C#4",
+tuningMethod->{"6:3","4:1"}};
 pianoTuner[folder_,OptionsPattern[]]:=Module[{catchupFunction,catchupOvertone,catchupPosition,currentOvertone,currentOvertonePosition,
 deleteNotesO,fitData,freqRatio2cents,freqRatio2pitch,guessNextOvertonePosition,guessOneOvertoneLengthPoints,headSampleVolume,
 ihFitScaling,ihfunc,ihFunction,ihFunctionExtraction,ihPlot,ihProperty,ihProperty0,ihProperty2,ihPropertyFunction,largefunc,maxBands,
@@ -12,7 +13,8 @@ tunTrialPloy,vars,wavAnalyzeCutFrequency,wavAnalyzeCutOvertone,wavAnalyzeCutOver
 wavAnalyzePartitionTime,wavCatchupAnalyzeFrequencyBands,wavCatchupWeightedAverageBands,wavCutFrequency,wavData,wavDirectory,wavFourier,
 wavFourierCatchupPeakStart,wavFourierCatchupPeakStartPosition,wavGuessOneOvertoneLengthPosition,wavIdealFreq,wavImport,wavNames,
 wavOneOvertoneSamples,wavPartitions,wavPartitionsLength,wavPeakOvertone,wavPeakPosition,wavSampleRate,wavTrimData,
-weightedAverageOvertone,whiteBlackKeyDict},
+weightedAverageOvertone,whiteBlackKeyDict,tunSplitPoint,tunBassOctave,tunBassOctavePitch,tunTenorOctave,tunTenorOctavePitch,
+tunCurveBassObjFunction,tunCurveTenorObjFunction,ObjFunction},
 (*1. global parameters and functions*)
 (*note dictionaries*)
 noteDict=Association["C"->0,"C#"->1,"D"->2,"D#"->3,"E"->4,"F"->5,"F#"->6,"G"->7,"G#"->8,"A"->9,"A#"->10,"B"->11];
@@ -173,11 +175,11 @@ deleteNotesO=If[StringQ[#],note2num[#],#-noteStartN]&/@deleteNotesO;
 ihProperty=Select[ihProperty,!MemberQ[deleteNotesO,#[[1]]]&];
 (*ih property is the IH parameters*)
 ihFunctionExtraction[ihProperty_]:=(temp=ihProperty[[;;,1]];
-smallfunc=Fit[Select[ihProperty,#[[1]]<=18&],{1,x},x];
+smallfunc=Fit[Select[ihProperty,#[[1]]<=15&],{1,x},x];
 largefunc=Fit[Select[ihProperty,#[[1]]>=40&],{1,x},x];
-ihProperty2=Flatten[{Table[{x,smallfunc},{x,noteRangeNum[[1]],temp[[1]]-1}],ihProperty,Table[{x,largefunc},{x,temp[[-1]]+1,noteRangeNum[[2]]}]},1];
+ihProperty2=Flatten[{Table[{x,smallfunc},{x,noteRangeNum[[1]]-48,temp[[1]]-1}],ihProperty,Table[{x,largefunc},{x,temp[[-1]]+1,noteRangeNum[[2]]+48}]},1];
 ihPropertyFunction=Interpolation[ihProperty2];
-ihPlot=Show[Plot[ihPropertyFunction[k],{k,0,87},PlotRange->All,Axes->None,ImageSize->1600,Frame->True,AspectRatio->1/GoldenRatio,PlotStyle->LightGray,FrameLabel->{"Key Number","Inharmonicity Value"}],Graphics[Flatten[{Red,PointSize[Large],Table[Point[ihProperty[[i]]],{i,Length[ihProperty]}],Black,Table[Text[num2note[ihProperty[[i,1]]],{ihProperty[[i,1]],ihProperty[[i,2]]+0.15If[OddQ[ihProperty[[i,1]]],1,-1]},Background->White],{i,Length[ihProperty]}]}]]];
+ihPlot=Show[Plot[ihPropertyFunction[k],{k,noteRangeNum[[1]],noteRangeNum[[2]]},PlotRange->All,Axes->None,ImageSize->1600,Frame->True,AspectRatio->1/2,PlotStyle->Directive[Thick,Pink],FrameLabel->{"Key Number","Inharmonicity Value"}],Graphics[Flatten[{Red,PointSize[0.008],Table[Point[ihProperty[[i]]],{i,Length[ihProperty]}],Black,Table[Text[num2note[ihProperty[[i,1]]],{ihProperty[[i,1]],ihProperty[[i,2]]+0.15If[OddQ[ihProperty[[i,1]]],1,-1]},Background->White],{i,Length[ihProperty]}]}]],FrameTicks->{None,Automatic},GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,-100,100}]},GridLinesStyle->LightBlue];
 (*restore ih overtone property function*)
 ihfunc[k_,n_]:=n*Sqrt[1+E^ihPropertyFunction[k]/ihFitScaling*(n-1)^2];ihfunc);
 ihFunction=ihFunctionExtraction[ihProperty];
@@ -192,29 +194,27 @@ Clear/@vars;
 (*unit: cents*)
 tunTrialPloy[x_]=Expand[Total[Table[vars[[i]]*(x-note2num["A4"])^i,{i,tunPolyOrder}]]];
 (*define tuning method*)
-tunMethod=Import[NotebookDirectory[]<>"prams/"<>"tuning_method","Text"];
-tunMethod=StringSplit/@StringSplit[tunMethod,"\n"];
-tunMethod=Table[temp=StringSplit[tunMethod[[i,1]],"~"];
-If[temp[[1]]=="*",temp[[1]]=noteRangeO[[1]]];
-If[temp[[2]]=="*",temp[[2]]=noteRangeO[[2]]];
-temp=note2num/@temp;
-temp1=Reverse[Sort[ToExpression/@StringSplit[tunMethod[[i,2]],"/"]]];
-temp2=freqRatio2pitch@(Divide@@temp1);
-{temp,temp1,temp2},{i,Length[tunMethod]}];
-(*optimize tuning curve*)
-tunCurveObjFunction=Total@Flatten@Table[temp=tunMethod[[i,1]];
-temp1=tunMethod[[i,2]];
-temp2=tunMethod[[i,3]];
-Table[
-overtoneDifferenceCents=freqRatio2cents[(ihFunction[j,temp1[[1]]])/(ihFunction[j+temp2,temp1[[2]]]/temp1[[2]]*temp1[[1]])];
-Expand[(overtoneDifferenceCents-tunTrialPloy[j+temp2]+tunTrialPloy[j])^2]
-,{j,temp[[1]],Round[Min[noteRangeNum[[2]]-temp2,temp[[2]]]]}]
-,{i,Length[tunMethod]}];
+tunMethod=OptionValue[tuningMethod];
+tunSplitPoint=OptionValue[tuningSplit];
+tunMethod=Table[Sort[ToExpression[StringSplit[tunMethod[[i]],":"]]],{i,Length[tunMethod]}];
+tunSplitPoint=note2num@tunSplitPoint;
+(*bass optimize*)
+tunBassOctave=tunMethod[[1,2]]/tunMethod[[1,1]];
+tunBassOctavePitch=freqRatio2pitch[tunBassOctave];
+tunCurveBassObjFunction=Expand[Total[Table[overtoneDifferenceCents=freqRatio2cents[ihFunction[j,tunMethod[[1,2]]]/ihFunction[j+tunBassOctavePitch,tunMethod[[1,1]]]/tunBassOctave];
+(overtoneDifferenceCents-(tunTrialPloy[j+tunBassOctavePitch]-tunTrialPloy[j]))^2
+,{j,noteRangeNum[[1]],tunSplitPoint}]]];
+(*tenor optimize*)
+tunTenorOctave=tunMethod[[2,2]]/tunMethod[[2,1]];
+tunTenorOctavePitch=freqRatio2pitch[tunTenorOctave];
+tunCurveTenorObjFunction=Expand[Total[Table[overtoneDifferenceCents=freqRatio2cents[ihFunction[j-tunTenorOctavePitch,tunMethod[[2,2]]]/ihFunction[j,tunMethod[[2,1]]]/tunTenorOctave];
+(overtoneDifferenceCents-(tunTrialPloy[j]-tunTrialPloy[j-tunTenorOctavePitch]))^2
+,{j,tunSplitPoint+1,noteRangeNum[[2]]}]]];
+(*optimize function*)
+tunCurveObjFunction=tunCurveBassObjFunction+tunCurveTenorObjFunction;
 tunOptimize=NMinimize[tunCurveObjFunction,vars];
 tunCurveFunction[x_]=tunTrialPloy[x]/.(tunOptimize[[2]]);
-tunCurvePlot=Graphics[Flatten[{{Red,Thick,Circle[{48,tunCurveFunction[48]},.6]},Table[{If[Mod[x-3,12]==0,{GrayLevel[.4],Disk[{x,tunCurveFunction[x]},.6]}],If[num2wb[x],Black,LightGray],Disk[{x,tunCurveFunction[x]},.3]},{x,noteRangeNum[[1]],noteRangeNum[[2]]}]}],ImageSize->1600,Frame->True,GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Automatic},GridLinesStyle->LightGray,FrameLabel->{"Key Number","Pitch (cents)"}];
-
-(**********************************************************************************)
+tunCurvePlot=Graphics[Flatten[{Table[{If[Mod[x-3,12]==0,{GrayLevel[.4],Disk[{x,tunCurveFunction[x]},.6]}],If[num2wb[x],Black,If[x==48,Red,LightGray]],Disk[{x,tunCurveFunction[x]},.3]},{x,noteRangeNum[[1]],noteRangeNum[[2]]}]}],ImageSize->1600,Frame->True,GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,-100,100,2}]},GridLinesStyle->LightBlue,FrameLabel->{"Keys","Pitch (cents)"},FrameTicks->{None,Automatic}];(**********************************************************************************)
 (**********************************************************************************)
 (*6. temperment mask model*)
 temDirectory=NotebookDirectory[]<>"../res/temperments/"<>"1-4 Syntonic Meantone.tem";
@@ -232,3 +232,6 @@ pianoTuner[NotebookDirectory[]<>"../res/samples/"<>"grand/",deleteNotes->{"A6","
 
 
 pianoTuner[NotebookDirectory[]<>"../res/samples/"<>"upright/",deleteNotes->{"F#7"}]
+
+
+
