@@ -3,7 +3,7 @@
 Options[pianoTuner]={noteRange->{"A0","C8"},deleteNotes->{},noteStart->"A0",tuningSplit->"C#4",
 tuningMethod->{"6:3","4:1"},polynomialOrder->7,temperment->"",tempermentMajor->"C"};
 pianoTuner[folder_,OptionsPattern[]]:=Module[{catchupFunction,catchupOvertone,catchupPosition,currentOvertone,currentOvertonePosition,
-deleteNotesO,fitData,freqRatio2cents,freqRatio2pitch,guessNextOvertonePosition,guessOneOvertoneLengthPoints,headSampleVolume,
+deleteNotesO,fitData,freqRatio2cents,freqRatio2pitch,guessNextOvertonePosition,guessOneOvertoneLengthSamples,headSampleVolume,
 ihFitScaling,ihfunc,ihFunction,ihFunctionExtraction,ihPlot,ihProperty,ihProperty0,ihProperty2,ihPropertyFunction,largefunc,maxBands,
 note2num,noteDict,noteNames,noteNums,noteRangeNum,noteRangeO,noteStartN,noteStartO,num2freq,num2note,num2wb,oneOvertoneLengthPoints,
 overtoneAnalysis,overtoneDifferenceCents,overtoneSequence,overtoneTable,revNoteDict,smallfunc,tailSampleVolume,tem,temArray,temDecode,
@@ -118,16 +118,16 @@ oneOvertoneLengthPoints=wavPeakPosition/wavPeakOvertone;
 (*loop initilization parameters*)
 currentOvertone=wavPeakOvertone;
 currentOvertonePosition=wavPeakPosition;
-guessOneOvertoneLengthPoints=wavGuessOneOvertoneLengthPosition;
-overtoneSequence=Union[Append[overtoneSequence,catchupFunction[currentOvertonePosition,guessOneOvertoneLengthPoints]]];
+guessOneOvertoneLengthSamples=wavGuessOneOvertoneLengthPosition;
+overtoneSequence=Union[Append[overtoneSequence,catchupFunction[currentOvertonePosition,guessOneOvertoneLengthSamples]]];
 (*loop body*)
-While[currentOvertonePosition+guessOneOvertoneLengthPoints+(wavCatchupAnalyzeFrequencyBands+wavCatchupWeightedAverageBands)*guessOneOvertoneLengthPoints<Length[wavFourier],
+While[currentOvertonePosition+guessOneOvertoneLengthSamples+(wavCatchupAnalyzeFrequencyBands+wavCatchupWeightedAverageBands)*guessOneOvertoneLengthSamples<Length[wavFourier],
 (*guess the next overtone*)
-guessNextOvertonePosition=currentOvertonePosition+guessOneOvertoneLengthPoints;
+guessNextOvertonePosition=currentOvertonePosition+guessOneOvertoneLengthSamples;
 (*catchup the overtone*)
-catchupOvertone=catchupFunction[guessNextOvertonePosition,guessOneOvertoneLengthPoints];
+catchupOvertone=catchupFunction[guessNextOvertonePosition,guessOneOvertoneLengthSamples];
 (*loop update parameters*)
-guessOneOvertoneLengthPoints=Round[(catchupOvertone-currentOvertone)*oneOvertoneLengthPoints];
+guessOneOvertoneLengthSamples=Round[(catchupOvertone-currentOvertone)*oneOvertoneLengthPoints];
 currentOvertone=catchupOvertone;
 currentOvertonePosition=Round[catchupOvertone*oneOvertoneLengthPoints];
 overtoneSequence=Union[Append[overtoneSequence,catchupOvertone]];];
@@ -158,7 +158,7 @@ overtoneTable=Association[ParallelTable[overtoneAnalysis[i],{i,Length[noteNums]}
 (**********************************************************************************)
 (*4. inharmonicity model*)
 (*ih parameters*)
-ihFitScaling=1000;
+ihFitScaling=10^4;
 (*function build*)
 ihProperty0=SortBy[Table[
 fitData=overtoneTable[noteNums[[i]]];
@@ -179,7 +179,7 @@ smallfunc=Fit[Select[ihProperty,#[[1]]<=15&],{1,x},x];
 largefunc=Fit[Select[ihProperty,#[[1]]>=40&],{1,x},x];
 ihProperty2=Flatten[{Table[{x,smallfunc},{x,noteRangeNum[[1]]-48,temp[[1]]-1}],ihProperty,Table[{x,largefunc},{x,temp[[-1]]+1,noteRangeNum[[2]]+48}]},1];
 ihPropertyFunction=Interpolation[ihProperty2];
-ihPlot=Show[Plot[ihPropertyFunction[k],{k,noteRangeNum[[1]],noteRangeNum[[2]]},PlotRange->All,Axes->None,ImageSize->1600,Frame->True,AspectRatio->1/4,PlotStyle->Directive[Thick,Red],FrameLabel->{"Keys","Inharmonicity Value"}],Graphics[Flatten[{Black,PointSize[.007],Table[Point[ihProperty[[i]]],{i,Length[ihProperty]}],Black,Table[Text[num2note[ihProperty[[i,1]]],{ihProperty[[i,1]],ihProperty[[i,2]]+0.3If[OddQ[ihProperty[[i,1]]],1,-1]},Background->White],{i,Length[ihProperty]}]}]],FrameTicks->{None,Automatic},GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,-100,100}]},GridLinesStyle->LightRed];
+ihPlot=Show[Plot[ihPropertyFunction[k],{k,noteRangeNum[[1]],noteRangeNum[[2]]},PlotRange->All,Axes->None,ImageSize->1600,Frame->True,AspectRatio->1/4,PlotStyle->Directive[Thick,Red],FrameLabel->{"Keys","Inharmonicity Value"}],Graphics[Flatten[{Table[{If[num2wb[ihProperty[[i,1]]],Black,Pink],If[num2wb[ihProperty[[i,1]]],PointSize[.006],PointSize[.008]],Point[ihProperty[[i]]]},{i,Length[ihProperty]}],Black,Table[Text[num2note[ihProperty[[i,1]]],{ihProperty[[i,1]],ihProperty[[i,2]]+0.3If[OddQ[ihProperty[[i,1]]],1,-1]},Background->White],{i,Length[ihProperty]}]}]],FrameTicks->{None,Automatic},GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,-100,100}]},GridLinesStyle->LightRed];
 (*restore ih overtone property function*)
 ihfunc[k_,n_]:=n*Sqrt[1+E^ihPropertyFunction[k]/ihFitScaling*(n-1)^2];ihfunc);
 ihFunction=ihFunctionExtraction[ihProperty];
@@ -215,14 +215,12 @@ tunCurveTenorObjFunction=Expand[Total[Table[overtoneDifferenceCents=freqRatio2ce
 tunCurveObjFunction=tunCurveBassObjFunction+tunCurveTenorObjFunction;
 tunOptimize=NMinimize[tunCurveObjFunction,vars];
 tunCurveFunction[x_]=tunTrialPloy[x]/.(tunOptimize[[2]]);
-tunCurvePlot=Graphics[Flatten[{Table[{If[Mod[x-3,12]==0,{GrayLevel[.4],Disk[{x,tunCurveFunction[x]},.6]}],If[num2wb[x],Black,If[x==48,Red,LightGray]],Disk[{x,tunCurveFunction[x]},.3]},{x,noteRangeNum[[1]],noteRangeNum[[2]]}]}],ImageSize->1600,Frame->True,GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,-100,100,2}]},GridLinesStyle->LightBlue,FrameLabel->{None,"Tuning Curve (cents)"},FrameTicks->{None,Automatic}];
-(*calculate Deviation*)
-tunDeviation=Flatten[{Table[overtoneDifferenceCents=freqRatio2cents[ihFunction[j,tunMethod[[1,2]]]/ihFunction[j+tunBassOctavePitch,tunMethod[[1,1]]]/tunBassOctave];
+tunCurvePlot=Graphics[Flatten[{LightRed,Line[{{noteRangeNum[[1]],0},{noteRangeNum[[2]],0}}],Table[{If[Mod[x-3,12]==0,{GrayLevel[.4],Disk[{x,tunCurveFunction[x]},.6]}],If[num2wb[x],Black,If[x==48,Red,LightGray]],Disk[{x,tunCurveFunction[x]},If[num2wb[x],.22,.33]]},{x,noteRangeNum[[1]],noteRangeNum[[2]]}]}],ImageSize->1600,Frame->True,GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,-100,100}]},GridLinesStyle->LightBlue,FrameLabel->{None,"Tuning Curve (cents)"},FrameTicks->{None,Automatic}];tunDeviation=Flatten[{Table[overtoneDifferenceCents=freqRatio2cents[ihFunction[j,tunMethod[[1,2]]]/ihFunction[j+tunBassOctavePitch,tunMethod[[1,1]]]/tunBassOctave];
 (overtoneDifferenceCents-(tunTrialPloy[j+tunBassOctavePitch]-tunTrialPloy[j]))/.tunOptimize[[2]]
 ,{j,noteRangeNum[[1]],tunSplitPoint}],Table[overtoneDifferenceCents=freqRatio2cents[ihFunction[j-tunTenorOctavePitch,tunMethod[[2,2]]]/ihFunction[j,tunMethod[[2,1]]]/tunTenorOctave];
 (overtoneDifferenceCents-(tunTrialPloy[j]-tunTrialPloy[j-tunTenorOctavePitch]))/.tunOptimize[[2]]
 ,{j,tunSplitPoint+1,noteRangeNum[[2]]}]}];
-tunDeviationPlot=Graphics[Flatten[{Table[{If[Mod[x-3,12]==0,{GrayLevel[.4],Disk[{x,tunDeviation[[x+1]]},.6]}],If[num2wb[x],Black,If[x==48,Red,LightGray]],Disk[{x,tunDeviation[[x+1]]},.3]},{x,noteRangeNum[[1]],noteRangeNum[[2]]}]}],ImageSize->1600,Frame->True,GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,-100,100,2}]},GridLinesStyle->LightBlue,FrameLabel->{None,"Deviation (cents)"},FrameTicks->{None,Automatic}];
+tunDeviationPlot=Graphics[Flatten[{LightRed,Line[{{noteRangeNum[[1]],0},{noteRangeNum[[2]],0}}],Table[{If[Mod[x-3,12]==0,{GrayLevel[.4],Disk[{x,tunDeviation[[x+1]]},.6]}],If[num2wb[x],Black,If[x==48,Red,LightGray]],Disk[{x,tunDeviation[[x+1]]},If[num2wb[x],.22,.33]]},{x,noteRangeNum[[1]],noteRangeNum[[2]]}]}],ImageSize->1600,Frame->True,GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,-100,100}]},GridLinesStyle->LightBlue,FrameLabel->{None,"Deviation (cents)"},FrameTicks->{None,Automatic}];
 
 
 (**********************************************************************************)
