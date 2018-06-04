@@ -176,8 +176,10 @@ ihProperty=Select[ihProperty,!MemberQ[deleteNotesO,#[[1]]]&];
 (*ih property is the IH parameters*)
 ihFunctionExtraction[ihProperty_]:=(temp=ihProperty[[;;,1]];
 smallfunc=Fit[Select[ihProperty,#[[1]]<=15&],{1,x},x];
+smallfunc=(ihProperty[[1,2]]-CoefficientList[smallfunc,x][[-1]]*ihProperty[[1,1]])+CoefficientList[smallfunc,x][[-1]]*x;
 largefunc=Fit[Select[ihProperty,#[[1]]>=40&],{1,x},x];
-ihProperty2=Flatten[{Table[{x,smallfunc},{x,noteRangeNum[[1]]-48,temp[[1]]-1}],ihProperty,Table[{x,largefunc},{x,temp[[-1]]+1,noteRangeNum[[2]]+48}]},1];
+largefunc=(ihProperty[[-1,2]]-CoefficientList[largefunc,x][[-1]]*ihProperty[[-1,1]])+CoefficientList[largefunc,x][[-1]]*x;
+ihProperty2=Flatten[{Table[{x,smallfunc},{x,noteRangeNum[[1]]-12,temp[[1]]-1,12}],ihProperty,Table[{x,largefunc},{x,temp[[-1]]+1,noteRangeNum[[2]]+100,12}]},1];
 ihPropertyFunction=Interpolation[ihProperty2];
 ihPlot=Show[Plot[ihPropertyFunction[k],{k,noteRangeNum[[1]],noteRangeNum[[2]]},PlotRange->All,Axes->None,ImageSize->1600,Frame->True,AspectRatio->1/4,PlotStyle->Directive[Thick,Red],FrameLabel->{"Keys","Inharmonicity Value"}],Graphics[Flatten[{Table[{If[num2wb[ihProperty[[i,1]]],Black,Pink],If[num2wb[ihProperty[[i,1]]],PointSize[.006],PointSize[.008]],Point[ihProperty[[i]]]},{i,Length[ihProperty]}],Black,Table[Text[num2note[ihProperty[[i,1]]],{ihProperty[[i,1]],ihProperty[[i,2]]+0.3If[OddQ[ihProperty[[i,1]]],1,-1]},Background->White],{i,Length[ihProperty]}]}]],FrameTicks->{None,Automatic},GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,-100,100}]},GridLinesStyle->LightRed];
 (*restore ih overtone property function*)
