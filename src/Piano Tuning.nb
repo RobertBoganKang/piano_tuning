@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[      2727,         86]
-NotebookOptionsPosition[      2132,         68]
-NotebookOutlinePosition[      2466,         83]
-CellTagsIndexPosition[      2423,         80]
+NotebookDataLength[      3298,         99]
+NotebookOptionsPosition[      2610,         80]
+NotebookOutlinePosition[      2944,         95]
+CellTagsIndexPosition[      2901,         92]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -63,11 +63,23 @@ Cell[BoxData[
     RowBox[{"{", "\"\<F#7\>\"", "}"}]}]}], "]"}]], "Input",
  CellChangeTimes->{{3.737095320152108*^9, 
   3.7370953241251087`*^9}},ExpressionUUID->"1a8672ba-7008-4fb8-be02-\
-26b8e9d1d19c"]
+26b8e9d1d19c"],
+
+Cell[BoxData[
+ RowBox[{"pianoTuner", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"NotebookDirectory", "[", "]"}], "<>", "\"\<../res/samples/\>\"", 
+    "<>", "\"\<grand_tuning\>\""}], ",", 
+   RowBox[{"temperment", "\[Rule]", "\"\<Bach - Bradley Lehman.tem\>\""}]}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.7371349952293*^9, 3.737135052051907*^9}, {
+  3.737135085468975*^9, 3.737135101460834*^9}},
+ CellLabel->"In[52]:=",ExpressionUUID->"ba77aba9-93aa-4ff3-8fba-0ea759508292"]
 }, Open  ]]
 },
 WindowSize->{808, 873},
-WindowMargins->{{Automatic, 131}, {9, Automatic}},
+WindowMargins->{{Automatic, 131}, {0, Automatic}},
 FrontEndVersion->"11.3 for Linux x86 (64-bit) (March 6, 2018)",
 StyleDefinitions->"Default.nb"
 ]
@@ -86,7 +98,8 @@ Cell[CellGroupData[{
 Cell[580, 22, 165, 3, 98, "Title",ExpressionUUID->"bfe080ee-b5eb-43fd-a9c3-76fd55931756"],
 Cell[748, 27, 405, 10, 55, "Input",ExpressionUUID->"49c7b137-eb3f-4356-ab5b-cac52ff32bc3"],
 Cell[1156, 39, 554, 14, 55, "Input",ExpressionUUID->"5e7c9a02-ff2b-4f76-bf56-309875fa6d8d"],
-Cell[1713, 55, 403, 10, 55, "Input",ExpressionUUID->"1a8672ba-7008-4fb8-be02-26b8e9d1d19c"]
+Cell[1713, 55, 403, 10, 55, "Input",ExpressionUUID->"1a8672ba-7008-4fb8-be02-26b8e9d1d19c"],
+Cell[2119, 67, 475, 10, 55, "Input",ExpressionUUID->"ba77aba9-93aa-4ff3-8fba-0ea759508292"]
 }, Open  ]]
 }
 ]

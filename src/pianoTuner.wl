@@ -14,7 +14,7 @@ wavFourierCatchupPeakStart,wavFourierCatchupPeakStartPosition,wavGuessOneOverton
 wavOneOvertoneSamples,wavPartitions,wavPartitionsLength,wavPeakOvertone,wavPeakPosition,wavSampleRate,wavTrimData,
 weightedAverageOvertone,whiteBlackKeyDict,tunSplitPoint,tunBassOctave,tunBassOctavePitch,tunTenorOctave,tunTenorOctavePitch,
 tunCurveBassObjFunction,tunCurveTenorObjFunction,tunDeviation,tunDeviationPlot,tunLimitFreq,tunPartials,
-tunTable,playFreq},
+tunTable,playFreq,tunFile,readTunFile,tunFilePrepare},
 (*1. global parameters and functions*)
 (*note dictionaries*)
 noteDict=Association["C"->0,"C#"->1,"D"->2,"D#"->3,"E"->4,"F"->5,"F#"->6,"G"->7,"G#"->8,"A"->9,"A#"->10,"B"->11];
@@ -43,6 +43,7 @@ freqRatio2pitch[x_]:=12.*Log[2,x];
 (*2. import samples*)
 (*import samples*)
 wavDirectory=folder;
+If[StringTake[folder,-1]!="/",tunFile=True;Goto[readTunFile],tunFile=False];
 wavNames=Import[wavDirectory];
 noteNames=First[StringSplit[#,"."]]&/@wavNames;
 noteNums=If[LetterQ[StringTake[#,1]],note2num[#],ToExpression[#]-noteStartN]&/@noteNames;
@@ -157,8 +158,10 @@ overtoneTable=Association[ParallelTable[overtoneAnalysis[i],{i,Length[noteNums]}
 (**********************************************************************************)
 (**********************************************************************************)
 (*4. inharmonicity model*)
+Label[readTunFile];
 (*ih parameters*)
 ihFitScaling=10^4;
+If[!tunFile,
 (*function build*)
 ihProperty0=SortBy[Table[
 fitData=overtoneTable[noteNums[[i]]];
@@ -173,6 +176,15 @@ ihProperty=Table[{ihProperty[[i,1]],Log[ihProperty[[i,2]]]},{i,Length[ihProperty
 deleteNotesO=OptionValue[deleteNotes];
 deleteNotesO=If[StringQ[#],note2num[#],#-noteStartN]&/@deleteNotesO;
 ihProperty=Select[ihProperty,!MemberQ[deleteNotesO,#[[1]]]&];
+(*export tuning file*)
+tunFilePrepare=StringRiffle[Table[num2note[ihProperty[[i,1]]]<>"  "<>ToString[ihProperty[[i,2]]],{i,Length[ihProperty]}],"\n"];
+Export[NotebookDirectory[]<>"Tuning File",tunFilePrepare,"Text"],
+
+(*else: tuning file read*)
+tunFilePrepare=Import[folder,"Text"];
+temp=StringSplit[#]&/@StringSplit[tunFilePrepare,"\n"];
+ihProperty=Table[{note2num[temp[[i,1]]],ToExpression[temp[[i,2]]]},{i,Length[temp]}];
+];
 (*ih property is the IH parameters*)
 ihFunctionExtraction[ihProperty_]:=(temp=ihProperty[[;;,1]];
 smallfunc=Fit[Select[ihProperty,#[[1]]<=15&],{1,x},x];
@@ -232,7 +244,7 @@ tunDeviationPlot=Graphics[Flatten[{LightRed,Line[{{noteRangeNum[[1]],0},{noteRan
 temDirectory=OptionValue[temperment];
 If[temDirectory!="",
 If[!DirectoryQ[temDirectory],temDirectory=NotebookDirectory[]<>"../res/temperments/"<>temDirectory];
-tem=Import[temDirectory];
+tem=Import[temDirectory,"Text"];
 temDecode=Map[StringSplit,StringSplit[tem,"\n"]];
 temArray=SortBy[Table[{noteDict[temDecode[[i,1]]],temDecode[[i,2]]},{i,Length[temDecode]}],First][[;;,2]];
 temArray=ToExpression/@temArray;
