@@ -1,7 +1,11 @@
 (* ::Package:: *)
 
+(*package directory*)
+packageDirectory=NotebookDirectory[];
+(*piano tuner function*)
 Options[pianoTuner]={noteRange->{"A0","C8"},deleteNotes->{},noteStart->"A0",tuningSplit->"C#4",
-tuningMethod->{"6:3","4:1"},polynomialOrder->7,temperment->"",tempermentMajor->"C"};
+tuningMethod->{"6:3","4:1"},polynomialOrder->7,temperment->"",tempermentMajor->"C",
+A4Frequency->440,saveTuningFile->"",reportFormat->"pdf"};
 pianoTuner[folder_,OptionsPattern[]]:=Module[{catchupFunction,catchupOvertone,catchupPosition,currentOvertone,currentOvertonePosition,
 deleteNotesO,fitData,freqRatio2cents,freqRatio2pitch,guessNextOvertonePosition,guessOneOvertoneLengthSamples,headSampleVolume,
 ihFitScaling,ihfunc,ihFunction,ihFunctionExtraction,ihPlot,ihProperty,ihProperty0,ihProperty2,ihPropertyFunction,largefunc,maxBands,
@@ -14,7 +18,8 @@ wavFourierCatchupPeakStart,wavFourierCatchupPeakStartPosition,wavGuessOneOverton
 wavOneOvertoneSamples,wavPartitions,wavPartitionsLength,wavPeakOvertone,wavPeakPosition,wavSampleRate,wavTrimData,
 weightedAverageOvertone,whiteBlackKeyDict,tunSplitPoint,tunBassOctave,tunBassOctavePitch,tunTenorOctave,tunTenorOctavePitch,
 tunCurveBassObjFunction,tunCurveTenorObjFunction,tunDeviation,tunDeviationPlot,tunLimitFreq,tunPartials,
-tunTable,playFreq,tunFile,readTunFile,tunFilePrepare},
+tunTable,playFreq,tunFile,readTunFile,tunFilePrepare,temDict,tunRestoreFunction,tunRestoreCentsFunction,temp2,
+tunTableString,tunTableStringCents,panel},
 (*1. global parameters and functions*)
 (*note dictionaries*)
 noteDict=Association["C"->0,"C#"->1,"D"->2,"D#"->3,"E"->4,"F"->5,"F#"->6,"G"->7,"G#"->8,"A"->9,"A#"->10,"B"->11];
@@ -26,7 +31,7 @@ note2num[x_]:=If[StringContainsQ[x,"#"],
 noteDict[ToUpperCase[StringTake[x,2]]]+12*ToExpression[StringDrop[x,2]]-9,
 noteDict[ToUpperCase[StringTake[x,1]]]+12*ToExpression[StringDrop[x,1]]-9];
 num2note[x_]:=revNoteDict[Mod[x+9,12]]<>ToString[Floor[(x+9)/12]];
-num2freq[x_]:=440.*2^((x-48)/12);
+num2freq[x_]:=OptionValue[A4Frequency]*2^((x-48)/12);
 num2wb[x_]:=whiteBlackKeyDict[[Mod[x,12]+1]];
 (*note range*)
 noteRangeO=OptionValue[noteRange];
@@ -178,7 +183,7 @@ deleteNotesO=If[StringQ[#],note2num[#],#-noteStartN]&/@deleteNotesO;
 ihProperty=Select[ihProperty,!MemberQ[deleteNotesO,#[[1]]]&];
 (*export tuning file*)
 tunFilePrepare=StringRiffle[Table[num2note[ihProperty[[i,1]]]<>"  "<>ToString[ihProperty[[i,2]]],{i,Length[ihProperty]}],"\n"];
-Export[NotebookDirectory[]<>"Tuning File",tunFilePrepare,"Text"],
+If[OptionValue[saveTuningFile]!="",Export[packageDirectory<>OptionValue[saveTuningFile],tunFilePrepare,"Text"]],
 
 (*else: tuning file read*)
 tunFilePrepare=Import[folder,"Text"];
@@ -243,14 +248,14 @@ tunDeviationPlot=Graphics[Flatten[{LightRed,Line[{{noteRangeNum[[1]],0},{noteRan
 (*6. temperment mask model*)
 temDirectory=OptionValue[temperment];
 If[temDirectory!="",
-If[!DirectoryQ[temDirectory],temDirectory=NotebookDirectory[]<>"../res/temperments/"<>temDirectory];
+If[!DirectoryQ[temDirectory],temDirectory=packageDirectory<>"../res/temperments/"<>temDirectory<>".tem"];
 tem=Import[temDirectory,"Text"];
 temDecode=Map[StringSplit,StringSplit[tem,"\n"]];
-temArray=SortBy[Table[{noteDict[temDecode[[i,1]]],temDecode[[i,2]]},{i,Length[temDecode]}],First][[;;,2]];
+temArray=SortBy[Union@Table[{noteDict[temDecode[[i,1]]],temDecode[[i,2]]},{i,Length[temDecode]}],First][[;;,2]];
 temArray=ToExpression/@temArray;
 (*input: note name [such as: "G"]*)
-temRotate[x_]:=(temp=RotateRight[temArray,noteDict[x]];temp-temp[[10]]);
-temArray=temRotate[OptionValue[tempermentMajor]];
+temRotate[tem_,x_]:=(temp=RotateRight[temArray,noteDict[x]];temp-temp[[10]]);
+temArray=temRotate[temArray,OptionValue[tempermentMajor]];
 temp=RotateRight[temArray,3];
 temDict=Association[Table[i->temp[[i+1]],{i,0,11}]];,
 temDict=Association[Table[i->0,{i,0,11}]];
@@ -260,9 +265,10 @@ temDict=Association[Table[i->0,{i,0,11}]];
 (**********************************************************************************)
 (*7. tuning piano data*)
 tunRestoreFunction[k_,n_]:=(num2freq[k]*2^((tunCurveFunction[k]+temDict[Mod[k,12]])/1200)*ihFunction[k,n]);
+tunRestoreCentsFunction[k_,n_]:=Log[2,tunRestoreFunction[k,n]/num2freq[k]/n]*1200;
 playFreq[x_]:=EmitSound[Play[Sin[2*Pi*t*x],{t,0,0.2},SampleRate->44100]];
 (*create tuning table*)
-tunPartials=Import[NotebookDirectory[]<>"params/"<>"tuning_partials"];
+tunPartials=Import[packageDirectory<>"params/"<>"tuning_partials"];
 tunPartials=Association[Flatten[Table[temp=StringSplit[tunPartials[[i,1]],"~"];
 If[temp[[1]]=="*",temp[[1]]=noteRangeO[[1]]];
 If[temp[[2]]=="*",temp[[2]]=noteRangeO[[2]]];
@@ -271,13 +277,24 @@ Table[j->tunPartials[[i,2]],{j,temp[[1]],temp[[2]]}]
 ,{i,Length[tunPartials]}]]];
 
 tunTable=Framed[TableForm[Table[temp=tunRestoreFunction[k,n];
+temp2=tunRestoreCentsFunction[k,n];
+tunTableString=ToString[temp];
+tunTableStringCents=If[temp2>0,"+",""]<>ToString[Ceiling[temp2,0.01]]<>"\[Cent]";
+If[temp2==0.,tunTableString="["<>ToString[temp]<>"Hz]";tunTableStringCents=""];
 If[temp>tunLimitFreq,
-"",With[{s=temp},Button[Style[temp,If[tunPartials[k]==n,Red,Black]],playFreq[s],Appearance->None]]
+"",With[{s=temp},Button[Row[{Style[tunTableString,If[temp2==0,Blue,If[tunPartials[k]==n,Red,Black]]],
+Style[tunTableStringCents,If[tunPartials[k]==n,Pink,Gray],6]}],playFreq[s],Appearance->None]]
 ],{k,noteRangeNum[[1]],noteRangeNum[[2]]},{n,1,16}],
-TableHeadings->{Table[num2note[k],{k,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,1,16}]}]];
+TableHeadings->{Table[num2note[k],{k,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,1,16}]},
+TableSpacing->{.5,.3}]];
 
 (**********************************************************************************)
 (**********************************************************************************)
 (*8. return result*)
-Column[{Deploy[Framed[Column[{tunCurvePlot,tunDeviationPlot,ihPlot}]]],tunTable}]
+panel=Framed[Column[{tunCurvePlot,tunDeviationPlot,ihPlot}]];
+If[OptionValue[saveTuningFile]!="",
+Export[packageDirectory<>OptionValue[saveTuningFile]<>" curve."<>OptionValue[reportFormat],panel];
+Export[packageDirectory<>OptionValue[saveTuningFile]<>" tuning."<>OptionValue[reportFormat],tunTable];
+];
+Column[{tunTable,Deploy[panel]}]
 ]
