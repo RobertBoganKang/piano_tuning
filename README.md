@@ -1,8 +1,17 @@
 # Piano Tuning
 Similar to [tunelab](https://www.tunelab-world.com/).
 Algorithm is complicated and will be written in document.
+## Supported Functions
+* Set A4 frequency
+* Tuning for non-88 keys piano
+* Different tuning method at bass and tenor for optimization
+* Save the inharmonicity parameters into file, and save report
+* Ignore notes for tuning
+* Tuning for different temperment
 
-The algorithm is fully construct by myself, it dose not violate the copyright. However, the temperment file is copied from tunelab apps, it is under the copyright of tunelab.
+This algorithm is fully construct by myself, it dose not violate the copyright. 
+
+However, the temperment file is copied from tunelab apps, it is under the copyright of tunelab.
 ## Demo
 There are 2 fully sampled pianos as demo.
 ### Wesleiter Upright 123
