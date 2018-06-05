@@ -1,7 +1,7 @@
 (* ::Package:: *)
 
 (*package directory*)
-packageDirectory=NotebookDirectory[];
+If[!StringQ[packageDirectory],packageDirectory=NotebookDirectory[]];
 (*piano tuner function*)
 Options[pianoTuner]={noteRange->{"A0","C8"},deleteNotes->{},noteStart->"A0",tuningSplit->"C#4",
 tuningMethod->{"6:3","4:1"},polynomialOrder->7,temperment->"",tempermentMajor->"C",
