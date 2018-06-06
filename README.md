@@ -1,6 +1,6 @@
 # Piano Tuning
 Similar to [tunelab](https://www.tunelab-world.com/).
-Algorithm is complicated and will be written in document.
+Algorithm is complicated and is written in [document](https://github.com/RobertBoganKang/piano_tuning/tree/master/res/document).
 ## Supported Functions
 * Set A4 frequency
 * Tuning for non-88 keys piano
