@@ -54,12 +54,12 @@ noteNames=First[StringSplit[#,"."]]&/@wavNames;
 noteNums=If[LetterQ[StringTake[#,1]],note2num[#],ToExpression[#]-noteStartN]&/@noteNames;
 
 (*wave slices parameters*)
-headSampleVolume=0.9;
+headSampleVolume=0.7;
 tailSampleVolume=0.05;
-wavAnalyzePartitionTime=0.08;
+wavAnalyzePartitionTime=0.04;
 wavAnalyzeCutFrequency=10000;
 wavAnalyzeCutOvertoneF[x_]:=Which[x<40,17,x<60,13,True,8];
-wavCatchupAnalyzeFrequencyBands=0.08;
+wavCatchupAnalyzeFrequencyBands=0.09;
 wavFourierCatchupPeakStart=0.8;
 (*weighted average for the targeted catchup frequencies*)
 wavCatchupWeightedAverageBands=0.01;
@@ -70,14 +70,14 @@ wavCatchupWeightedAverageBands=0.01;
 (*catchup functions:
 input: next overtone position: positive is forward, negative is backward
 output: the overtone around that position*)
-catchupFunction[guessNextOvertonePosition_,guessOneOvertoneLengthPointsF_]:=((*find the peak position*)
-wavAnalyzeOvertoneData=wavFourier[[Round[guessNextOvertonePosition-wavCatchupAnalyzeFrequencyBands*guessOneOvertoneLengthPointsF];;Round[guessNextOvertonePosition+wavCatchupAnalyzeFrequencyBands*guessOneOvertoneLengthPointsF]]];
+catchupFunction[guessNextOvertonePosition_,guessOneOvertoneLengthSamplesF_]:=((*find the peak position*)
+wavAnalyzeOvertoneData=wavFourier[[Round[guessNextOvertonePosition-wavCatchupAnalyzeFrequencyBands*guessOneOvertoneLengthSamplesF];;Round[guessNextOvertonePosition+wavCatchupAnalyzeFrequencyBands*guessOneOvertoneLengthSamplesF]]];
 maxBands=wavCatchupAnalyzeFrequencyBands+wavCatchupWeightedAverageBands;
-wavAnalyzeOvertoneDataPool=wavFourier[[Round[guessNextOvertonePosition-maxBands*guessOneOvertoneLengthPointsF];;Round[guessNextOvertonePosition+maxBands*guessOneOvertoneLengthPointsF]]];
+wavAnalyzeOvertoneDataPool=wavFourier[[Floor[guessNextOvertonePosition-maxBands*guessOneOvertoneLengthSamplesF];;1+Floor[guessNextOvertonePosition+maxBands*guessOneOvertoneLengthSamplesF]]];
 (*peak position*)
 catchupPosition=First@First@Position[wavAnalyzeOvertoneDataPool[[;;,2]],Max[wavAnalyzeOvertoneData[[;;,2]]]];
 (*get weight average overtone*)
-weightedAverageOvertone=wavAnalyzeOvertoneDataPool[[Round[catchupPosition-wavCatchupWeightedAverageBands*guessOneOvertoneLengthPointsF];;Round[catchupPosition+wavCatchupWeightedAverageBands*guessOneOvertoneLengthPointsF]]];
+weightedAverageOvertone=wavAnalyzeOvertoneDataPool[[Round[catchupPosition-wavCatchupWeightedAverageBands*guessOneOvertoneLengthSamplesF];;Round[catchupPosition+wavCatchupWeightedAverageBands*guessOneOvertoneLengthSamplesF]]];
 weightedAverageOvertone=Total[Table[weightedAverageOvertone[[i,1]]*weightedAverageOvertone[[i,2]],{i,Length[weightedAverageOvertone]}]]/Total[Table[weightedAverageOvertone[[i,2]],{i,Length[weightedAverageOvertone]}]];
 weightedAverageOvertone);
 
@@ -107,7 +107,7 @@ wavFourier=Table[{i*wavSampleRate/Length[wavTrimData],wavFourier[[i]]},{i,Intege
 wavCutFrequency=Min[wavIdealFreq*wavAnalyzeCutOvertone,wavAnalyzeCutFrequency];
 wavFourier=Select[wavFourier,First[#]<wavCutFrequency&];
 wavFourier=Table[{wavFourier[[i,1]]/wavIdealFreq,wavFourier[[i,2]]},{i,Length[wavFourier]}];
-(*ListLogPlot[wavFourier,PlotRange\[Rule]All,Joined\[Rule]True,Frame\[Rule]True,Axes\[Rule]False,AspectRatio\[Rule]1/10,ImageSize\[Rule]1600,FrameTicks\[Rule]{Table[i,{i,0,wavAnalyzeCutOvertone}],None},GridLines\[Rule]{Table[i,{i,0,wavAnalyzeCutOvertone}],Automatic},FrameLabel\[Rule]{"Overtone","Volume (dB)"}]*)
+(*ListLogPlot[wavFourier,PlotRange\[Rule]All,Joined\[Rule]True,Frame\[Rule]True,Axes\[Rule]False,PlotStyle\[Rule]Pink,AspectRatio\[Rule]1/10,ImageSize\[Rule]1600,FrameTicks\[Rule]{Table[i,{i,0,wavAnalyzeCutOvertone}],None},GridLines\[Rule]{Table[i,{i,0,wavAnalyzeCutOvertone}],Automatic},FrameLabel\[Rule]{"Overtone","Volume (dB)"}]*)
 
 (*catch up the peaks of frequencies*)
 wavOneOvertoneSamples=wavIdealFreq/wavSampleRate*Length[wavTrimData];
@@ -298,3 +298,10 @@ Export[packageDirectory<>OptionValue[saveTuningFile]<>" tuning."<>OptionValue[re
 ];
 Column[{tunTable,Deploy[panel]}]
 ]
+
+
+(* ::Input:: *)
+(*pianoTuner[NotebookDirectory[]<>"../res/samples/"<>"grand/",deleteNotes->{}]*)
+
+
+
