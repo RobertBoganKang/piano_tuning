@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[      4207,        116]
-NotebookOptionsPosition[      3519,         97]
-NotebookOutlinePosition[      3852,        112]
-CellTagsIndexPosition[      3809,        109]
+NotebookDataLength[      4857,        122]
+NotebookOptionsPosition[      4169,        103]
+NotebookOutlinePosition[      4502,        118]
+CellTagsIndexPosition[      4459,        115]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -36,9 +36,7 @@ Cell[BoxData[{
    "]"}], ";"}]}], "Input",
  CellChangeTimes->{{3.737095009055582*^9, 3.737095058264196*^9}, {
   3.73716546721909*^9, 3.7371654681785793`*^9}},
- CellLabel->
-  "(Debug) (Dialog) \
-In[1151]:=",ExpressionUUID->"49c7b137-eb3f-4356-ab5b-cac52ff32bc3"],
+ CellLabel->"In[89]:=",ExpressionUUID->"49c7b137-eb3f-4356-ab5b-cac52ff32bc3"],
 
 Cell[BoxData[
  RowBox[{"pianoTuner", "[", 
@@ -49,15 +47,17 @@ Cell[BoxData[
    RowBox[{"deleteNotes", "->", 
     RowBox[{"{", 
      RowBox[{
-     "\"\<B6\>\"", ",", "\"\<C7\>\"", ",", "\"\<E7\>\"", ",", "\"\<A7\>\"", 
-      ",", "\"\<C8\>\""}], "}"}]}]}], "]"}]], "Input",
+     "\"\<C7\>\"", ",", "\"\<B6\>\"", ",", "\"\<F7\>\"", ",", "\"\<G7\>\""}], 
+     "}"}]}]}], "]"}]], "Input",
  CellChangeTimes->{{3.737095192826096*^9, 3.7370951996426697`*^9}, {
    3.737095303825717*^9, 3.737095305702129*^9}, 3.737343996361516*^9, {
    3.7373491250869637`*^9, 3.737349139669786*^9}, {3.737349178982935*^9, 
-   3.737349182330368*^9}},
- CellLabel->
-  "(Debug) (Dialog) \
-In[1150]:=",ExpressionUUID->"5e7c9a02-ff2b-4f76-bf56-309875fa6d8d"],
+   3.737349182330368*^9}, 3.737475753715785*^9, {3.737475826737398*^9, 
+   3.73747582795322*^9}, {3.73747607591999*^9, 3.737476078416829*^9}, {
+   3.737476499482218*^9, 3.737476508143647*^9}, {3.7374765591796513`*^9, 
+   3.737476587967738*^9}, 3.737476661594594*^9, {3.7374767025496283`*^9, 
+   3.737476705644165*^9}},
+ CellLabel->"In[88]:=",ExpressionUUID->"5e7c9a02-ff2b-4f76-bf56-309875fa6d8d"],
 
 Cell[BoxData[
  RowBox[{"pianoTuner", "[", 
@@ -66,10 +66,16 @@ Cell[BoxData[
     RowBox[{"NotebookDirectory", "[", "]"}], "<>", "\"\<../res/samples/\>\"", 
     "<>", "\"\<upright/\>\""}], ",", 
    RowBox[{"deleteNotes", "->", 
-    RowBox[{"{", "\"\<F#7\>\"", "}"}]}]}], "]"}]], "Input",
+    RowBox[{"{", 
+     RowBox[{"\"\<G#7\>\"", ",", "\"\<B7\>\""}], "}"}]}]}], "]"}]], "Input",
  CellChangeTimes->{{3.737095320152108*^9, 3.7370953241251087`*^9}, 
-   3.737348843236639*^9, {3.737349067577777*^9, 
-   3.737349071553541*^9}},ExpressionUUID->"1a8672ba-7008-4fb8-be02-\
+   3.737348843236639*^9, {3.737349067577777*^9, 3.737349071553541*^9}, {
+   3.7374742318081093`*^9, 3.737474232535475*^9}, {3.737474353642849*^9, 
+   3.737474357661462*^9}, {3.737474409194499*^9, 3.7374744093638973`*^9}, {
+   3.737475211173931*^9, 3.737475213252079*^9}, {3.737475337179043*^9, 
+   3.737475340057585*^9}, {3.737475548879286*^9, 3.737475550555601*^9}, {
+   3.73747566923419*^9, 3.7374756840350323`*^9}, 3.737476107894951*^9, 
+   3.737476391022044*^9},ExpressionUUID->"1a8672ba-7008-4fb8-be02-\
 26b8e9d1d19c"],
 
 Cell[BoxData[
@@ -113,10 +119,10 @@ CellTagsIndex->{}
 Notebook[{
 Cell[CellGroupData[{
 Cell[580, 22, 165, 3, 98, "Title",ExpressionUUID->"bfe080ee-b5eb-43fd-a9c3-76fd55931756"],
-Cell[748, 27, 480, 13, 70, "Input",ExpressionUUID->"49c7b137-eb3f-4356-ab5b-cac52ff32bc3"],
-Cell[1231, 42, 722, 17, 70, "Input",ExpressionUUID->"5e7c9a02-ff2b-4f76-bf56-309875fa6d8d"],
-Cell[1956, 61, 476, 11, 31, "Input",ExpressionUUID->"1a8672ba-7008-4fb8-be02-26b8e9d1d19c"],
-Cell[2435, 74, 1068, 20, 78, "Input",ExpressionUUID->"ba77aba9-93aa-4ff3-8fba-0ea759508292"]
+Cell[748, 27, 456, 11, 55, "Input",ExpressionUUID->"49c7b137-eb3f-4356-ab5b-cac52ff32bc3"],
+Cell[1207, 40, 970, 19, 55, "Input",ExpressionUUID->"5e7c9a02-ff2b-4f76-bf56-309875fa6d8d"],
+Cell[2180, 61, 902, 17, 31, "Input",ExpressionUUID->"1a8672ba-7008-4fb8-be02-26b8e9d1d19c"],
+Cell[3085, 80, 1068, 20, 78, "Input",ExpressionUUID->"ba77aba9-93aa-4ff3-8fba-0ea759508292"]
 }, Open  ]]
 }
 ]

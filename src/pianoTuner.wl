@@ -6,20 +6,22 @@ packageDirectory=NotebookDirectory[];
 Options[pianoTuner]={noteRange->{"A0","C8"},deleteNotes->{},noteStart->"A0",tuningSplit->"C#4",
 tuningMethod->{"6:3","4:1"},polynomialOrder->7,temperment->"",tempermentMajor->"C",
 A4Frequency->440,saveTuningFile->"",reportFormat->"pdf"};
-pianoTuner[folder_,OptionsPattern[]]:=Module[{catchupFunction,catchupOvertone,catchupPosition,currentOvertone,currentOvertonePosition,
-deleteNotesO,fitData,freqRatio2cents,freqRatio2pitch,guessNextOvertonePosition,guessOneOvertoneLengthSamples,headSampleVolume,
-ihFitScaling,ihfunc,ihFunction,ihFunctionExtraction,ihPlot,ihProperty,ihProperty0,ihProperty2,ihPropertyFunction,largefunc,maxBands,
-note2num,noteDict,noteNames,noteNums,noteRangeNum,noteRangeO,noteStartN,noteStartO,num2freq,num2note,num2wb,oneOvertoneLengthPoints,
-overtoneAnalysis,overtoneDifferenceCents,overtoneSequence,overtoneTable,revNoteDict,smallfunc,tailSampleVolume,tem,temArray,temDecode,
-temDirectory,temp,temRotate,tunCurveFunction,tunCurveObjFunction,tunCurvePlot,tunMethod,tunOptimize,tunPolyOrder,
-tunTrialPloy,vars,wavAnalyzeCutFrequency,wavAnalyzeCutOvertone,wavAnalyzeCutOvertoneF,wavAnalyzeOvertoneData,wavAnalyzeOvertoneDataPool,
-wavAnalyzePartitionTime,wavCatchupAnalyzeFrequencyBands,wavCatchupWeightedAverageBands,wavCutFrequency,wavData,wavDirectory,wavFourier,
-wavFourierCatchupPeakStart,wavFourierCatchupPeakStartPosition,wavGuessOneOvertoneLengthPosition,wavIdealFreq,wavImport,wavNames,
-wavOneOvertoneSamples,wavPartitions,wavPartitionsLength,wavPeakOvertone,wavPeakPosition,wavSampleRate,wavTrimData,
-weightedAverageOvertone,whiteBlackKeyDict,tunSplitPoint,tunBassOctave,tunBassOctavePitch,tunTenorOctave,tunTenorOctavePitch,
-tunCurveBassObjFunction,tunCurveTenorObjFunction,tunDeviation,tunDeviationPlot,tunLimitFreq,tunPartials,
-tunTable,playFreq,tunFile,readTunFile,tunFilePrepare,temDict,tunRestoreFunction,tunRestoreCentsFunction,temp2,
-tunTableString,tunTableStringCents,panel},
+pianoTuner[folder_,OptionsPattern[]]:=Module[{catchupFunction,catchupOvertone,catchupPosition,currentOvertone,
+currentOvertonePosition,deleteNotesO,fitData,freqRatio2cents,freqRatio2pitch,guessNextOvertonePosition,
+guessOneOvertoneLengthSamples,headSampleVolume,ihFitScaling,ihfunc,ihFunction,ihFunctionExtraction,ihPlot,
+ihProperty,ihProperty0,ihProperty2,ihPropertyFunction,largefunc,maxBands,note2num,noteDict,noteNames,noteNums,
+noteRangeNum,noteRangeO,noteStartN,noteStartO,num2freq,num2note,num2wb,oneOvertoneLengthPoints,overtoneAnalysis,
+overtoneDifferenceCents,overtoneSequence,overtoneTable,panel,playFreq,readTunFile,revNoteDict,smallfunc,
+tailSampleVolume,tem,temArray,temDecode,temDict,temDirectory,temp,temp2,temRotate,tunBassOctave,tunBassOctavePitch,
+tunCurveBassObjFunction,tunCurveFunction,tunCurveObjFunction,tunCurvePlot,tunCurveTenorObjFunction,tunDeviation,
+tunDeviationPlot,tunFile,tunFilePrepare,tunLimitFreq,tunMethod,tunOptimize,tunPartials,tunPolyOrder,
+tunRestoreCentsFunction,tunRestoreFunction,tunSplitPoint,tunTable,tunTableString,tunTableStringCents,
+tunTenorOctave,tunTenorOctavePitch,tunTrialPloy,vars,wavAnalyzeCutFrequency,wavAnalyzeCutOvertone,wavAnalyzeCutOvertoneF,
+wavAnalyzeOvertoneData,wavAnalyzeOvertoneDataPool,wavAnalyzePartitionTime,wavCatchupAnalyzeFrequencyBands,
+wavCatchupWeightedAverageBands,wavCutFrequency,wavData,wavDirectory,wavFourier,wavFourierCatchupPeakStart,
+wavFourierCatchupPeakStartPosition,wavGuessOneOvertoneLengthPosition,wavIdealFreq,wavImport,wavLeastAnalyzeTime,
+wavNames,wavOneOvertoneSamples,wavPartitions,wavPartitionsLength,wavPeakOvertone,wavPeakPosition,wavSampleRate,
+wavTrimData,weightedAverageOvertone,whiteBlackKeyDict},
 (*1. global parameters and functions*)
 (*note dictionaries*)
 noteDict=Association["C"->0,"C#"->1,"D"->2,"D#"->3,"E"->4,"F"->5,"F#"->6,"G"->7,"G#"->8,"A"->9,"A#"->10,"B"->11];
@@ -54,9 +56,10 @@ noteNames=First[StringSplit[#,"."]]&/@wavNames;
 noteNums=If[LetterQ[StringTake[#,1]],note2num[#],ToExpression[#]-noteStartN]&/@noteNames;
 
 (*wave slices parameters*)
-headSampleVolume=0.7;
+headSampleVolume=0.9;
 tailSampleVolume=0.05;
-wavAnalyzePartitionTime=0.04;
+wavAnalyzePartitionTime=0.08;
+wavLeastAnalyzeTime=0.5;
 wavAnalyzeCutFrequency=10000;
 wavAnalyzeCutOvertoneF[x_]:=Which[x<40,17,x<60,13,True,8];
 wavCatchupAnalyzeFrequencyBands=0.09;
@@ -99,6 +102,7 @@ i=1;
 wavTrimData={};
 While[Max[Abs[wavPartitions[[i]]]]>=headSampleVolume&&i<=wavPartitionsLength;i++];
 While[Max[Abs[wavPartitions[[i]]]]>=tailSampleVolume&&i<=wavPartitionsLength,AppendTo[wavTrimData,wavPartitions[[i]]];i++];
+if[i<wavLeastAnalyzeTime/wavAnalyzePartitionTime,While[i<wavLeastAnalyzeTime/wavAnalyzePartitionTime&&i<=wavPartitionsLength,AppendTo[wavTrimData,wavPartitions[[i]]];i++];];
 wavTrimData=Flatten[wavTrimData];
 (*fourier analysis*)
 wavAnalyzeCutOvertone=wavAnalyzeCutOvertoneF[noteNums[[x]]]+1;
@@ -302,6 +306,3 @@ Column[{tunTable,Deploy[panel]}]
 
 (* ::Input:: *)
 (*pianoTuner[NotebookDirectory[]<>"../res/samples/"<>"grand/",deleteNotes->{}]*)
-
-
-
