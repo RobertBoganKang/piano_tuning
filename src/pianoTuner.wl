@@ -302,7 +302,3 @@ Export[packageDirectory<>OptionValue[saveTuningFile]<>" tuning."<>OptionValue[re
 ];
 Column[{tunTable,Deploy[panel]}]
 ]
-
-
-(* ::Input:: *)
-(*pianoTuner[NotebookDirectory[]<>"../res/samples/"<>"grand/",deleteNotes->{}]*)
