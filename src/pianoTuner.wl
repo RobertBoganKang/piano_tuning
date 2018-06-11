@@ -102,7 +102,7 @@ i=1;
 wavTrimData={};
 While[Max[Abs[wavPartitions[[i]]]]>=headSampleVolume&&i<=wavPartitionsLength;i++];
 While[Max[Abs[wavPartitions[[i]]]]>=tailSampleVolume&&i<=wavPartitionsLength,AppendTo[wavTrimData,wavPartitions[[i]]];i++];
-if[i<wavLeastAnalyzeTime/wavAnalyzePartitionTime,While[i<wavLeastAnalyzeTime/wavAnalyzePartitionTime&&i<=wavPartitionsLength,AppendTo[wavTrimData,wavPartitions[[i]]];i++];];
+If[i<wavLeastAnalyzeTime/wavAnalyzePartitionTime,While[i<wavLeastAnalyzeTime/wavAnalyzePartitionTime&&i<=wavPartitionsLength,AppendTo[wavTrimData,wavPartitions[[i]]];i++];];
 wavTrimData=Flatten[wavTrimData];
 (*fourier analysis*)
 wavAnalyzeCutOvertone=wavAnalyzeCutOvertoneF[noteNums[[x]]]+1;
@@ -301,4 +301,4 @@ Export[packageDirectory<>OptionValue[saveTuningFile]<>" curve."<>OptionValue[rep
 Export[packageDirectory<>OptionValue[saveTuningFile]<>" tuning."<>OptionValue[reportFormat],tunTable];
 ];
 Column[{tunTable,Deploy[panel]}]
-]
+];
