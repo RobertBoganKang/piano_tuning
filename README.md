@@ -14,6 +14,7 @@ The optimization function is using entropy function, however this method cannot 
 * Save the inharmonicity parameters into file, and save report
 * Ignore notes for tuning
 * Tuning for different temperment
+* If fully sampled piano, it allowed to save the tuned samples for Kontakt player as a virtual instrument (just for hearing the tuning result).
 
 ## Demo
 There are 2 fully sampled pianos as demo.
