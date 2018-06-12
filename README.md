@@ -18,10 +18,10 @@ The optimization function is using entropy function, however this method cannot 
 ## Demo
 There are 2 fully sampled pianos as demo.
 ### Wesleiter Upright 123
+The samples: [[link](https://github.com/RobertBoganKang/WesleiterUpright123); however I used older samples sampled in 2011].
 #### Audio demo
 * Traditional Tuning Method [[1](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/tuned%200.mp3), [2](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/tuned%201.mp3)]
 * Entropy Tuning Method [[1](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/entropy%200.mp3), [2](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/entropy%201.mp3)]
-[[link](https://github.com/RobertBoganKang/WesleiterUpright123); however I used older samples sampled in 2011].
 #### Tuning Data
 ![Upright Tuning](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/upright%20tuning.png)
 #### Curve
