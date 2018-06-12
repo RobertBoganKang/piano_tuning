@@ -155,4 +155,4 @@ wavStep=2^(entropyShift[wavNoteNum]*100*wavFourierAnalyzePrecision/1200);
 Table[wavInterpolation[i],{i,1,Length[wavData],wavStep}])
 
 
-ParallelDo[temp=entropyResultReconstruct[i];Export[NotebookDirectory[]<>"../res/instruments/traditional/resample/"<>ToString[noteNums[[i]]]<>".wav",temp],{i,Length[noteNums]}]
+ParallelDo[temp=entropyResultReconstruct[i];Export[NotebookDirectory[]<>"../res/instruments/entropy/resample/"<>ToString[noteNums[[i]]]<>".wav",temp],{i,Length[noteNums]}]
