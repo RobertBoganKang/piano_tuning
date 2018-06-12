@@ -71,7 +71,7 @@ If[i<wavLeastAnalyzeTime/wavAnalyzePartitionTime,While[i<wavLeastAnalyzeTime/wav
 wavTrimData=Flatten[wavTrimData];
 (*fourier analysis*)
 wavFourier=Abs[Fourier[wavTrimData]];
-wavFourier=Table[{Log[2.,(i*wavSampleRate/Length[wavTrimData])/440]*12+48,wavFourier[[i]]},{i,IntegerPart[Length[wavFourier]/2]}];
+wavFourier=Table[{Log[2.,((i-1)*wavSampleRate/Length[wavTrimData])/440]*12+48,wavFourier[[i]]},{i,IntegerPart[Length[wavFourier]/2]}];
 wavFourier=Select[wavFourier,First[#]<wavAnalyzeRange[[2]]+5&&First[#]>=wavAnalyzeRange[[1]]-5&];
 (*two sides are 0*)
 Do[If[wavFourier[[i,1]]<wavNoteNum-5||wavFourier[[i,1]]>wavAnalyzeRange[[2]]-wavAnalyzePitchMargin,wavFourier[[i,2]]=0],{i,Length[wavFourier]}];
@@ -155,4 +155,4 @@ wavStep=2^(entropyShift[wavNoteNum]*100*wavFourierAnalyzePrecision/1200);
 Table[wavInterpolation[i],{i,1,Length[wavData],wavStep}])
 
 
-ParallelDo[temp=entropyResultReconstruct[i];Export["/home/robert/Desktop/re/"<>ToString[noteNums[[i]]]<>".wav",temp],{i,Length[noteNums]}]
+ParallelDo[temp=entropyResultReconstruct[i];Export[NotebookDirectory[]<>"../res/instruments/traditional/resample/"<>ToString[noteNums[[i]]]<>".wav",temp],{i,Length[noteNums]}]

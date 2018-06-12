@@ -5,7 +5,7 @@ packageDirectory=NotebookDirectory[];
 (*piano tuner function*)
 Options[pianoTuner]={noteRange->{"A0","C8"},deleteNotes->{},noteStart->"A0",tuningSplit->"C#4",
 tuningMethod->{"6:3","4:1"},polynomialOrder->7,temperment->"",tempermentMajor->"C",
-A4Frequency->440,saveTuningFile->"",reportFormat->"pdf"};
+A4Frequency->440,saveTuningFile->"",reportFormat->"pdf",exportTunedSamples->""};
 pianoTuner[folder_,OptionsPattern[]]:=Module[{catchupFunction,catchupOvertone,catchupPosition,currentOvertone,
 currentOvertonePosition,deleteNotesO,fitData,freqRatio2cents,freqRatio2pitch,guessNextOvertonePosition,
 guessOneOvertoneLengthSamples,headSampleVolume,ihFitScaling,ihfunc,ihFunction,ihFunctionExtraction,ihPlot,
@@ -21,7 +21,8 @@ wavAnalyzeOvertoneData,wavAnalyzeOvertoneDataPool,wavAnalyzePartitionTime,wavCat
 wavCatchupWeightedAverageBands,wavCutFrequency,wavData,wavDirectory,wavFourier,wavFourierCatchupPeakStart,
 wavFourierCatchupPeakStartPosition,wavGuessOneOvertoneLengthPosition,wavIdealFreq,wavImport,wavLeastAnalyzeTime,
 wavNames,wavOneOvertoneSamples,wavPartitions,wavPartitionsLength,wavPeakOvertone,wavPeakPosition,wavSampleRate,
-wavTrimData,weightedAverageOvertone,whiteBlackKeyDict},
+wavTrimData,weightedAverageOvertone,whiteBlackKeyDict,freqPropertyTable,wavInterpolation,wavStep,
+pitchDeviationTable,sampleReconstruct,freqProperty},
 (*1. global parameters and functions*)
 (*note dictionaries*)
 noteDict=Association["C"->0,"C#"->1,"D"->2,"D#"->3,"E"->4,"F"->5,"F#"->6,"G"->7,"G#"->8,"A"->9,"A#"->10,"B"->11];
@@ -59,10 +60,10 @@ noteNums=If[LetterQ[StringTake[#,1]],note2num[#],ToExpression[#]-noteStartN]&/@n
 headSampleVolume=0.9;
 tailSampleVolume=0.05;
 wavAnalyzePartitionTime=0.08;
-wavLeastAnalyzeTime=0.5;
+wavLeastAnalyzeTime=0.3;
 wavAnalyzeCutFrequency=10000;
 wavAnalyzeCutOvertoneF[x_]:=Which[x<40,17,x<60,13,True,8];
-wavCatchupAnalyzeFrequencyBands=0.09;
+wavCatchupAnalyzeFrequencyBands=0.08;
 wavFourierCatchupPeakStart=0.8;
 (*weighted average for the targeted catchup frequencies*)
 wavCatchupWeightedAverageBands=0.01;
@@ -107,17 +108,20 @@ wavTrimData=Flatten[wavTrimData];
 (*fourier analysis*)
 wavAnalyzeCutOvertone=wavAnalyzeCutOvertoneF[noteNums[[x]]]+1;
 wavFourier=Abs[Fourier[wavTrimData]];
-wavFourier=Table[{i*wavSampleRate/Length[wavTrimData],wavFourier[[i]]},{i,IntegerPart[Length[wavFourier]/2]}];
+wavFourier=Table[{(i-1)*wavSampleRate/Length[wavTrimData],wavFourier[[i]]},{i,IntegerPart[Length[wavFourier]/2]}];
 wavCutFrequency=Min[wavIdealFreq*wavAnalyzeCutOvertone,wavAnalyzeCutFrequency];
 wavFourier=Select[wavFourier,First[#]<wavCutFrequency&];
 wavFourier=Table[{wavFourier[[i,1]]/wavIdealFreq,wavFourier[[i,2]]},{i,Length[wavFourier]}];
 (*ListLogPlot[wavFourier,PlotRange\[Rule]All,Joined\[Rule]True,Frame\[Rule]True,Axes\[Rule]False,PlotStyle\[Rule]Pink,AspectRatio\[Rule]1/10,ImageSize\[Rule]1600,FrameTicks\[Rule]{Table[i,{i,0,wavAnalyzeCutOvertone}],None},GridLines\[Rule]{Table[i,{i,0,wavAnalyzeCutOvertone}],Automatic},FrameLabel\[Rule]{"Overtone","Volume (dB)"}]*)
 
 (*catch up the peaks of frequencies*)
+(*the highest peak*)
 wavOneOvertoneSamples=wavIdealFreq/wavSampleRate*Length[wavTrimData];
 wavFourierCatchupPeakStartPosition=Round[wavFourierCatchupPeakStart*wavOneOvertoneSamples];
 wavPeakPosition=First@First@Position[wavFourier[[;;,2]],Max[wavFourier[[wavFourierCatchupPeakStartPosition;;,2]]]];
 wavPeakOvertone=wavFourier[[wavPeakPosition,1]];
+(*track the real frequency*)
+freqProperty=(noteNums[[x]]->{Round[wavFourier[[wavPeakPosition,1]]],1.wavFourier[[wavPeakPosition,1]]*wavIdealFreq});
 (*build up overtone sequences*)
 overtoneSequence={};
 (*initialize the peak points properties*)
@@ -158,11 +162,14 @@ currentOvertone=catchupOvertone;
 currentOvertonePosition=Round[catchupOvertone*oneOvertoneLengthPoints];
 overtoneSequence=Union[Prepend[overtoneSequence,catchupOvertone]];
 ]];
-noteNums[[x]]->overtoneSequence
+{noteNums[[x]]->overtoneSequence,freqProperty}
 );
 
 (*find out all overtone properties*)
-overtoneTable=Association[ParallelTable[overtoneAnalysis[i],{i,Length[noteNums]}]];
+temp=ParallelTable[overtoneAnalysis[i],{i,Length[noteNums]}];
+freqPropertyTable=temp[[;;,2]];
+overtoneTable=temp[[;;,1]];
+overtoneTable=Association[overtoneTable];
 
 (**********************************************************************************)
 (**********************************************************************************)
@@ -175,7 +182,7 @@ If[!tunFile,
 ihProperty0=SortBy[Table[
 fitData=overtoneTable[noteNums[[i]]];
 fitData=fitData/fitData[[1]];
-Clear[B,n];
+Clear[A,B,n];
 fitData=Table[{i-1,fitData[[i]]/i},{i,Length[fitData]}];
 (*A is always nearly 1, thus ignored*)
 Flatten@{noteNums[[i]],ihFitScaling*B/.FindFit[fitData,A*Sqrt[1+B*n^2],{{A,1},{B,0}},n]},{i,Length[noteNums]}],First];
@@ -294,7 +301,26 @@ TableSpacing->{.5,.3}]];
 
 (**********************************************************************************)
 (**********************************************************************************)
-(*8. return result*)
+(*8. save tuned samples*)
+sampleReconstruct[x_,c_]:=(
+wavImport=Import[wavDirectory<>wavNames[[x]],"Sound"];
+wavSampleRate=wavImport[[1,2]];
+wavData=Mean[wavImport[[1,1]]];
+wavData=wavData/Max[wavData];
+wavInterpolation=Interpolation[wavData];
+wavStep=2^(c/1200);
+Table[wavInterpolation[i],{i,1,Length[wavData],wavStep}]);
+(*export sample files into exportTunedSamples Folder*)
+If[DirectoryQ[OptionValue[exportTunedSamples]],
+pitchDeviationTable=Association[Table[freqPropertyTable[[k,1]]->freqRatio2cents[tunRestoreFunction[freqPropertyTable[[k,1]],freqPropertyTable[[k,2,1]]]/freqPropertyTable[[k,2,2]]],{k,Length[freqPropertyTable]}]];
+ParallelDo[Export[OptionValue[exportTunedSamples]<>ToString[noteNums[[i]]]<>".wav",
+ListPlay[sampleReconstruct[i,pitchDeviationTable[noteNums[[i]]]],SampleRate->wavSampleRate,PlayRange->All]],
+{i,Length[noteNums]}];
+];
+
+(**********************************************************************************)
+(**********************************************************************************)
+(*9. return result*)
 panel=Framed[Column[{tunCurvePlot,tunDeviationPlot,ihPlot}]];
 If[OptionValue[saveTuningFile]!="",
 Export[packageDirectory<>OptionValue[saveTuningFile]<>" curve."<>OptionValue[reportFormat],panel];
