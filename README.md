@@ -5,8 +5,10 @@ Algorithm is complicated and is written in [document](https://github.com/RobertB
 This algorithm is fully construct by myself, it dose not violate the copyright. 
 
 However, the temperment file is copied from tunelab apps, it is under the copyright of tunelab.
-## Entropy Method (Experiment)
-The optimization function is using entropy function, however this method cannot get good result, and calculation is extremely slow. The algorithm itself might not work.
+## Entropy Method
+The optimization function is using entropy function, the function could achieve better result than the traditional tuning method. The harmony is more sharp, and harmonious. However, the scale alone sounds a little bit weird. 
+
+The calculation process is very long even though using parallel computing power. However, it is worth waiting, isn't it?
 ## Supported Functions
 * Set A4 frequency
 * Tuning for non-88 keys piano
