@@ -1,7 +1,7 @@
 # Piano Tuning
+Algorithm is complicated and is written in [document](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/document/Piano%20Tuning%20Method.pdf).
 ## Traditional Method
 Similar to [tunelab](https://www.tunelab-world.com/).
-Algorithm is complicated and is written in [document](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/document/Piano%20Tuning%20Method.pdf).
 This algorithm is fully construct by myself, it dose not violate the copyright. 
 
 However, the temperment file is copied from tunelab apps, it is under the copyright of tunelab.
