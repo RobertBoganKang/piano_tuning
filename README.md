@@ -6,7 +6,7 @@ This algorithm is fully construct by myself, it dose not violate the copyright.
 
 However, the temperment file is copied from tunelab apps, it is under the copyright of tunelab.
 ## Entropy Method
-The optimization function is using entropy function, the function could achieve better result than the traditional tuning method. The harmony is more sharp, and harmonious. However, the scale alone sounds a little bit weird. 
+The optimization function is using entropy function, the function could achieve better result than the traditional tuning method. The chord is more sharp, and harmonious. However, the scale alone sounds a little bit weird. 
 
 The calculation process is very long even though using parallel computing power. However, it is worth waiting, isn't it?
 ## Supported Functions
