@@ -259,7 +259,7 @@ tunDeviationPlot=Graphics[Flatten[{LightRed,Line[{{noteRangeNum[[1]],0},{noteRan
 (*6. temperment mask model*)
 temDirectory=OptionValue[temperment];
 If[temDirectory!="",
-If[!DirectoryQ[temDirectory],temDirectory=packageDirectory<>"../res/temperments/"<>temDirectory<>".tem"];
+If[!StringContainsQ[temDirectory,{"/","\\"}],temDirectory=packageDirectory<>"../res/temperments/"<>temDirectory<>".tem"];
 tem=Import[temDirectory,"Text"];
 temDecode=Map[StringSplit,StringSplit[tem,"\n"]];
 temArray=SortBy[Union@Table[{noteDict[temDecode[[i,1]]],temDecode[[i,2]]},{i,Length[temDecode]}],First][[;;,2]];
@@ -311,7 +311,7 @@ wavInterpolation=Interpolation[wavData];
 wavStep=2^(c/1200);
 Table[wavInterpolation[i],{i,1,Length[wavData],wavStep}]);
 (*export sample files into exportTunedSamples Folder*)
-If[DirectoryQ[OptionValue[exportTunedSamples]],
+If[StringContainsQ[OptionValue[exportTunedSamples],{"/","\\"}],
 pitchDeviationTable=Association[Table[freqPropertyTable[[k,1]]->freqRatio2cents[tunRestoreFunction[freqPropertyTable[[k,1]],freqPropertyTable[[k,2,1]]]/freqPropertyTable[[k,2,2]]],{k,Length[freqPropertyTable]}]];
 ParallelDo[Export[OptionValue[exportTunedSamples]<>ToString[noteNums[[i]]]<>".wav",
 ListPlay[sampleReconstruct[i,pitchDeviationTable[noteNums[[i]]]],SampleRate->wavSampleRate,PlayRange->All]],
