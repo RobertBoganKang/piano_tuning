@@ -12,11 +12,14 @@ The calculation process is very long even though using parallel computing power.
 ## Supported Functions
 * Set A4 frequency
 * Tuning for non-88 keys piano
+* If fully sampled piano, it allowed to save the tuned samples for Kontakt player as a virtual instrument (just for hearing the tuning result).
+### Traditional Method
 * Different tuning method at bass and tenor for optimization
 * Save the inharmonicity parameters into file, and save report
 * Ignore notes for tuning
 * Tuning for different temperment
-* If fully sampled piano, it allowed to save the tuned samples for Kontakt player as a virtual instrument (just for hearing the tuning result).
+### Entropy Method
+* Save Tune Shift parameters
 
 ## Demo
 There are 2 fully sampled pianos as demo.
