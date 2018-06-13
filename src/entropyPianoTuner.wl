@@ -4,22 +4,24 @@
 packageDirectory=NotebookDirectory[];
 (*piano tuner function*)
 Options[entropyPianoTuner]={noteRange->{"A0","C8"},noteStart->"A0",
-A4Frequency->440,exportTunedSamples->"rbk",saveTuneShift->"",loadTuneShift->""};
+A4Frequency->440,exportTunedSamples->"rbk",saveTuningFile->"",loadTuneShift->"",
+reportFormat->"pdf"};
 entropyPianoTuner[folder_,OptionsPattern[]]:=Module[{catchupFunction,catchupOvertone,catchupPosition,currentOvertone,
 currentOvertonePosition,entropyCheck,entropyCost,entropyCostLast,entropyCurvePlot,entropyEvaluate,entropyPlotAxis,
-entropyRandomDirection,entropyRandomNote,entropyResultReconstruct,entropyRoughness,entropyRoughSampleConstruct,entropyRoughSamples,
-entropySampleConstruct,entropySamples,entropyShift,entropyShiftIdeal,entropyShiftTrial,entropyStepChange,entropyTotal,
-freqPeakTable,freqRatio2cents,freqRatio2pitch,guessNextOvertonePosition,guessOneOvertoneLengthSamples,headSampleVolume,
-note2num,noteChoicePool,noteChoicePoolO,noteDict,noteNames,noteNums,noteRangeNum,noteRangeO,noteStartN,noteStartO,num2freq,
-num2note,num2pos,num2wb,oneOvertoneLengthPoints,overtoneAnalysis,overtoneSequence,pitchErrorElimiate,playFreq,pos2num,result,
-revNoteDict,str,tableOvertoneLimit,tailSampleVolume,temp,temp1,temp2,tunedPitchDeviationTable,tunPartials,tunTable,
-tunTableString,tunTableStringCents,wavAnalyzeCutFrequency,wavAnalyzeCutNoteNum,wavAnalyzeOvertoneData,wavAnalyzeOvertoneDataPool,
-wavAnalyzePartitionTime,wavAnalyzePitchMargin,wavAnalyzeRange,wavCatchupAnalyzeFrequencyBands,wavCutFrequency,wavData,
-wavDirectory,wavFourier,wavFourierAnalyzePrecision,wavFourierCatchupPeakStart,wavFourierCatchupPeakStartPosition,
-wavFourierInterpolation,wavGuessOneOvertoneLengthPosition,wavIdealFreq,wavImport,wavInterpolation,wavInterpolationReconstruct,
-wavLeastAnalyzeTime,wavNames,wavNoteNum,wavOneOvertoneSamples,wavOvertone,wavPartitions,wavPartitionsLength,wavPeakOvertone,
-wavPeakPosition,wavPitchShiftSample,wavSampleRate,wavStep,wavTrimData,whiteBlackKeyDict,tunPolyOrder,vars,tunTrialPloy,
-initialTuning,tunTrialFunction},
+entropyRandomDirection,entropyRandomNote,entropyResultReconstruct,entropyRoughness,entropyRoughSampleConstruct,
+entropyRoughSamples,entropySampleConstruct,entropySamples,entropyShift,entropyShiftIdeal,entropyShiftTrial,
+entropyStepChange,entropyTotal,freqPeakTable,freqRatio2cents,freqRatio2pitch,guessNextOvertonePosition,
+guessOneOvertoneLengthSamples,headSampleVolume,initialTuning,note2num,noteChoicePool,noteChoicePoolO,noteDict,
+noteNames,noteNums,noteRangeNum,noteRangeO,noteStartN,noteStartO,num2freq,num2note,num2pos,num2wb,oneOvertoneLengthPoints,
+overtoneAnalysis,overtoneSequence,pitchErrorElimiate,playFreq,pos2num,report,result,revNoteDict,str,tableOvertoneLimit,
+tailSampleVolume,temp,temp1,temp2,tunedPitchDeviationTable,tunPartials,tunPolyOrder,tunTable,tunTableString,
+tunTableStringCents,tunTrialFunction,tunTrialPloy,vars,wavAnalyzeCutFrequency,wavAnalyzeCutNoteNum,wavAnalyzeOvertoneData,
+wavAnalyzeOvertoneDataPool,wavAnalyzePartitionTime,wavAnalyzePitchMargin,wavAnalyzeRange,wavCatchupAnalyzeFrequencyBands,
+wavCutFrequency,wavData,wavDirectory,wavFourier,wavFourierAnalyzePrecision,wavFourierCatchupPeakStart,
+wavFourierCatchupPeakStartPosition,wavFourierInterpolation,wavGuessOneOvertoneLengthPosition,wavIdealFreq,wavImport,
+wavInterpolation,wavInterpolationReconstruct,wavLeastAnalyzeTime,wavNames,wavNoteNum,wavOneOvertoneSamples,wavOvertone,
+wavPartitions,wavPartitionsLength,wavPeakOvertone,wavPeakPosition,wavPitchShiftSample,wavSampleRate,wavStep,wavTrimData,
+whiteBlackKeyDict},
 (*1. global parameters and functions*)
 (*note dictionaries*)
 noteDict=Association["C"->0,"C#"->1,"D"->2,"D#"->3,"E"->4,"F"->5,"F#"->6,"G"->7,"G#"->8,"A"->9,"A#"->10,"B"->11];
@@ -323,10 +325,12 @@ ListPlay[Table[wavInterpolation[i],{i,1,Length[wavData],wavStep}],SampleRate->wa
 If[DirectoryQ[OptionValue[exportTunedSamples]],ParallelDo[temp=entropyResultReconstruct[i];str=OptionValue[exportTunedSamples]<>ToString[noteNums[[i]]]<>".wav";Export[str,temp],{i,Length[noteNums]}];];
 
 (*save tune shift*)
-If[OptionValue[saveTuneShift]!="",Export[packageDirectory<>OptionValue[saveTuneShift],StringRiffle[Table[ToString[entropyShift[i]],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]," "],"Text"]];
+If[OptionValue[saveTuningFile]!="",Export[packageDirectory<>OptionValue[saveTuningFile],StringRiffle[Table[ToString[entropyShift[i]],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]," "],"Text"]];
 
 (**********************************************************************************)
 (**********************************************************************************)
 (*8. return result*)
-Column[{tunTable,entropyCurvePlot}]
+report=Column[{tunTable,entropyCurvePlot}];
+If[OptionValue[saveTuningFile]!="",Export[packageDirectory<>OptionValue[saveTuningFile]<>"."<>OptionValue[reportFormat],report]];
+report
 ];
