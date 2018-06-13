@@ -19,7 +19,7 @@ The calculation process is very long even though using parallel computing power.
 * Ignore notes for tuning
 * Tuning for different temperment
 ### Entropy Method
-* Save Tune Shift parameters
+* Save & load Tune Shift parameters
 
 ## Demo
 There are 2 fully sampled pianos as demo.
