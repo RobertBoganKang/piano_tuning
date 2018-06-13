@@ -6,8 +6,8 @@ packageDirectory=NotebookDirectory[];
 Options[entropyPianoTuner]={noteRange->{"A0","C8"},noteStart->"A0",
 A4Frequency->440,exportTunedSamples->"rbk",saveTuneShift->"",loadTuneShift->""};
 entropyPianoTuner[folder_,OptionsPattern[]]:=DynamicModule[{catchupFunction,catchupOvertone,catchupPosition,currentOvertone,
-currentOvertonePosition,entropyCost,entropyCostLast,entropyCurvePlot,entropyEvaluate,entropyPlotAxis,entropyRandomDirection,
-entropyRandomNote,entropyResultReconstruct,entropyRoughness,entropyRoughSampleConstruct,entropyRoughSamples,
+currentOvertonePosition,entropyCheck,entropyCost,entropyCostLast,entropyCurvePlot,entropyEvaluate,entropyPlotAxis,
+entropyRandomDirection,entropyRandomNote,entropyResultReconstruct,entropyRoughness,entropyRoughSampleConstruct,entropyRoughSamples,
 entropySampleConstruct,entropySamples,entropyShift,entropyShiftIdeal,entropyShiftTrial,entropyStepChange,entropyTotal,
 freqPeakTable,freqRatio2cents,freqRatio2pitch,guessNextOvertonePosition,guessOneOvertoneLengthSamples,headSampleVolume,
 note2num,noteChoicePool,noteChoicePoolO,noteDict,noteNames,noteNums,noteRangeNum,noteRangeO,noteStartN,noteStartO,num2freq,
@@ -148,17 +148,19 @@ entropyShiftTrial[entropyRandomNote]=Round[entropyShiftTrial[entropyRandomNote]+
 entropyTotal=Total[Table[RotateRight[entropyRoughSamples[i],Round[entropyShiftTrial[i]/entropyRoughness]],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]];
 entropyTotal=entropyTotal/Total[entropyTotal];
 entropyCost=Total[Table[If[entropyTotal[[i]]!=0.,-entropyTotal[[i]]*Log[entropyTotal[[i]]],0],{i,Length[entropyTotal]}]];);
+entropyCheck:=(If[entropyCostLast>entropyCost,entropyShift=entropyShiftTrial;
+entropyCostLast=entropyCost;entropyStepChange++];);
+
 While[entropyStepChange!=0,
 entropyStepChange=0;noteChoicePool=Table[RandomSample[noteChoicePoolO,Length[noteChoicePoolO]],{$KernelCount}];
 ParallelDo[entropyRandomNote=noteChoicePool[[$KernelID,j]];
 entropyRandomDirection=RandomChoice[{1,-1}];
 entropyEvaluate;
-If[x<1,entropyRandomDirection=-entropyRandomDirection;
+entropyCheck;
+(*another direction*)
+If[x<1||entropyCostLast<=entropyCost,entropyRandomDirection=-entropyRandomDirection;
 entropyEvaluate;];
-If[entropyCostLast>entropyCost,entropyShift=entropyShiftTrial;
-entropyCostLast=entropyCost;entropyStepChange++,
-entropyRandomDirection=-entropyRandomDirection;
-entropyEvaluate;];
+entropyCheck;
 ,{j,Length[noteChoicePoolO]}]];
 Print[entropyTotal=Total[Table[RotateRight[entropyRoughSamples[i],Round[entropyShift[i]/entropyRoughness]],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]];
 entropyPlotAxis=Table[pos2num[j],{j,1,Length[entropySamples[1]],entropyRoughness}];
