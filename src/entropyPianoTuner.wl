@@ -153,6 +153,8 @@ entropyStepChange=0;noteChoicePool=Table[RandomSample[noteChoicePoolO,Length[not
 ParallelDo[entropyRandomNote=noteChoicePool[[$KernelID,j]];
 entropyRandomDirection=RandomChoice[{1,-1}];
 entropyEvaluate;
+If[x<1,entropyRandomDirection=-entropyRandomDirection;
+entropyEvaluate;];
 If[entropyCostLast>entropyCost,entropyShift=entropyShiftTrial;
 entropyCostLast=entropyCost;entropyStepChange++,
 entropyRandomDirection=-entropyRandomDirection;
