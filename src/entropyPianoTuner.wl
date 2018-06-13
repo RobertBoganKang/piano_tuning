@@ -114,7 +114,7 @@ wavOvertone=Round[num2freq[pos2num[temp1]]/num2freq[wavNoteNum]];
 wavPitchShiftSample=(num2pos[wavNoteNum+freqRatio2pitch[wavOvertone]]-temp1);
 result={wavNoteNum->wavPitchShiftSample,wavNoteNum->wavInterpolationReconstruct[[;;,2]]};
 (*wavInterpolationReconstruct=Transpose[{wavInterpolationReconstruct[[;;,1]],RotateRight[wavInterpolationReconstruct[[;;,2]],wavPitchShiftSample]}];
-ListPlot[wavInterpolationReconstruct,PlotRange\[Rule]All,Joined\[Rule]True,Frame\[Rule]True,Axes\[Rule]False,PlotStyle\[Rule]Pink,AspectRatio\[Rule]1/10,ImageSize\[Rule]1600,GridLines\[Rule]{Table[i,{i,wavAnalyzeRange[[1]],wavAnalyzeRange[[2]]}],Automatic},FrameLabel\[Rule]{"Key","Volume (dB)"}]*)
+ListPlot[wavInterpolationReconstruct,PlotRange\[Rule]All,Joined\[Rule]True,Frame\[Rule]True,Axes\[Rule]False,PlotStyle\[Rule]Pink,AspectRatio\[Rule]1/10,ImageSize\[Rule]1600,GridLines\[Rule]{Table[i,{i,wavAnalyzeRange[[1]],wavAnalyzeRange[[2]]}],Automatic},FrameLabel\[Rule]{"Key","Volume"}]*)
 result);
 
 (*build spectrum samples*)
@@ -268,7 +268,7 @@ entropyCheck;
 ,{j,Length[noteChoicePoolO]}]];
 Print[entropyTotal=Total[Table[RotateRight[entropyRoughSamples[i],Round[entropyShift[i]/entropyRoughness]],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]];
 entropyPlotAxis=Table[pos2num[j],{j,1,Length[entropySamples[1]],entropyRoughness}];
-ListPlot[Transpose@{entropyPlotAxis,entropyTotal},Joined->True,PlotRange->All,Frame->True,Axes->False,PlotStyle->Pink,AspectRatio->1/10,ImageSize->1600,GridLines->{Table[i,{i,wavAnalyzeRange[[1]],wavAnalyzeRange[[2]]}],Automatic},FrameLabel->{"Key","Volume (dB)"},GridLinesStyle->LightBlue]],
+ListPlot[Transpose@{entropyPlotAxis,entropyTotal},Joined->True,PlotRange->All,Frame->True,Axes->False,PlotStyle->Pink,AspectRatio->1/10,ImageSize->1600,GridLines->{Table[i,{i,wavAnalyzeRange[[1]],wavAnalyzeRange[[2]]}],Automatic},FrameLabel->{"Key","Volume"},GridLinesStyle->LightBlue]],
 {x,{1,0.5}}];,
 
 (*else: read tune shift file*)
@@ -280,7 +280,7 @@ entropyRoughSampleConstruct[1];
 entropyTotal=Total[Table[RotateRight[entropyRoughSamples[i],Round[entropyShift[i]/entropyRoughness]],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]];
 entropyPlotAxis=Table[pos2num[j],{j,1,Length[entropySamples[1]],entropyRoughness}];
 entropyCurvePlot=Framed[Column[{Graphics[Flatten[{LightRed,Line[{{noteRangeNum[[1]],0},{noteRangeNum[[2]],0}}],Table[temp=(entropyShift[x]-entropyShiftIdeal[x])*100*wavFourierAnalyzePrecision;{If[Mod[x-3,12]==0,{GrayLevel[.4],Disk[{x,temp},.6]}],If[num2wb[x],Black,If[x==48,Red,LightGray]],Disk[{x,temp},If[num2wb[x],.22,.33]]},{x,noteRangeNum[[1]],noteRangeNum[[2]]}]}],ImageSize->1600,Frame->True,GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,-100,100}]},GridLinesStyle->LightBlue,FrameLabel->{None,"Tuning Curve (cents)"},FrameTicks->{Automatic,Automatic}],
-ListPlot[Transpose@{entropyPlotAxis,entropyTotal},Joined->True,PlotRange->All,Frame->True,Axes->False,PlotStyle->Pink,AspectRatio->1/10,ImageSize->1600,GridLines->{Table[i,{i,wavAnalyzeRange[[1]],wavAnalyzeRange[[2]]}],Automatic},FrameLabel->{"Key","Volume (dB)"},GridLinesStyle->LightRed]}]];
+ListPlot[Transpose@{entropyPlotAxis,entropyTotal},Joined->True,PlotRange->All,Frame->True,Axes->False,PlotStyle->Pink,AspectRatio->1/10,ImageSize->1600,GridLines->{Table[i,{i,wavAnalyzeRange[[1]],wavAnalyzeRange[[2]]}],Automatic},FrameLabel->{"Key","Volume"},GridLinesStyle->LightRed]}]];
 
 (**********************************************************************************)
 (**********************************************************************************)
