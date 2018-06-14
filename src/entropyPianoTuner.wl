@@ -13,7 +13,7 @@ entropyRoughSamples,entropySampleConstruct,entropySamples,entropyShift,entropySh
 entropyStepChange,entropyTotal,freqPeakTable,freqRatio2cents,freqRatio2pitch,guessNextOvertonePosition,
 guessOneOvertoneLengthSamples,headSampleVolume,initialTuning,note2num,noteChoicePool,noteChoicePoolO,noteDict,
 noteNames,noteNums,noteRangeNum,noteRangeO,noteStartN,noteStartO,num2freq,num2note,num2pos,num2wb,oneOvertoneLengthPoints,
-overtoneAnalysis,overtoneSequence,pitchErrorElimiate,playFreq,pos2num,report,result,revNoteDict,str,tableOvertoneLimit,
+overtoneAnalysis,overtoneSequence,pitchErrorElimiate,playFreq,pos2num,result,revNoteDict,str,tableOvertoneLimit,
 tailSampleVolume,temp,temp1,temp2,tunedPitchDeviationTable,tunPartials,tunPolyOrder,tunTable,tunTableString,
 tunTableStringCents,tunTrialFunction,tunTrialPloy,vars,wavAnalyzeCutFrequency,wavAnalyzeCutNoteNum,wavAnalyzeOvertoneData,
 wavAnalyzeOvertoneDataPool,wavAnalyzePartitionTime,wavAnalyzePitchMargin,wavAnalyzeRange,wavCatchupAnalyzeFrequencyBands,
@@ -21,7 +21,7 @@ wavCutFrequency,wavData,wavDirectory,wavFourier,wavFourierAnalyzePrecision,wavFo
 wavFourierCatchupPeakStartPosition,wavFourierInterpolation,wavGuessOneOvertoneLengthPosition,wavIdealFreq,wavImport,
 wavInterpolation,wavInterpolationReconstruct,wavLeastAnalyzeTime,wavNames,wavNoteNum,wavOneOvertoneSamples,wavOvertone,
 wavPartitions,wavPartitionsLength,wavPeakOvertone,wavPeakPosition,wavPitchShiftSample,wavSampleRate,wavStep,wavTrimData,
-whiteBlackKeyDict},
+whiteBlackKeyDict,cent2shift,shift2cent},
 (*1. global parameters and functions*)
 (*note dictionaries*)
 noteDict=Association["C"->0,"C#"->1,"D"->2,"D#"->3,"E"->4,"F"->5,"F#"->6,"G"->7,"G#"->8,"A"->9,"A#"->10,"B"->11];
@@ -73,6 +73,9 @@ wavAnalyzeRange={noteRangeNum[[1]]-wavAnalyzePitchMargin,wavAnalyzeCutNoteNum+wa
 wavFourierAnalyzePrecision=0.001;
 pos2num[x_]:=(x-1)*wavFourierAnalyzePrecision+wavAnalyzeRange[[1]];
 num2pos[x_]:=Round[(x-wavAnalyzeRange[[1]])/wavFourierAnalyzePrecision+1];
+(*entropy step & cent conversion*)
+cent2shift[x_]:=Round[x/100/wavFourierAnalyzePrecision];
+shift2cent[x_]:=x*100*wavFourierAnalyzePrecision;
 
 (**********************************************************************************)
 (**********************************************************************************)
@@ -212,31 +215,35 @@ noteNums[[x]]->1.*overtoneSequence*wavIdealFreq
 
 (*find all frequency peaks*)
 freqPeakTable=Association[ParallelTable[overtoneAnalysis[i],{i,Length[noteNums]}]];
-(*eliminate*)
-pitchErrorElimiate=num2freq[48]/First[freqPeakTable[48]]/2^(entropyShift[48]*100*wavFourierAnalyzePrecision/1200);
-(*initial tuning of entropy algorithm: Method: <40 -> 4:2; >=40 -> 2:1*)
+(*eliminate pitch error*)
+pitchErrorElimiate=num2freq[48]/First[freqPeakTable[48]]/2^(shift2cent[entropyShift[48]]/1200);
+(*initial tuning of entropy algorithm: 
+Similar to traditional tuning method (simpler method): <=C#4: 6:3, > C#4: 4:1*)
 tunPolyOrder=3;
 vars=Table[ToExpression["X"<>ToString[i]],{i,tunPolyOrder}];
 Clear/@vars;
 (*unit: cents*)
-tunTrialPloy[x_]=Expand[Total[Table[vars[[i]]*(x-note2num["A4"])^i,{i,tunPolyOrder}]]];
-tunTrialFunction=tunTrialPloy[x]/.(NMinimize[Expand[Total[Table[temp=If[i<40,{2,4},{1,2}];(tunTrialPloy[i+12]-tunTrialPloy[i]+freqRatio2cents[Sort[freqPeakTable[i]][[temp[[2]]]]/Sort[freqPeakTable[i+12]][[temp[[1]]]]])^2, {i,noteRangeNum[[1]],noteRangeNum[[2]]-12}]]],vars][[2]]);
-initialTuning=Association[Table[x->Round[tunTrialFunction/100/wavFourierAnalyzePrecision],{x,noteRangeNum[[1]],noteRangeNum[[2]]}]];
+tunTrialPloy[x_]=Expand[Total[Table[vars[[i]]^2*(x-note2num["A4"])^i,{i,tunPolyOrder}]]];
+temp=Expand[Total[Table[(tunTrialPloy[i]-tunTrialPloy[i-24]-freqRatio2cents[Sort[freqPeakTable[i-24]][[4]]/Sort[freqPeakTable[i-24]][[1]]/4])^2, {i,41,noteRangeNum[[2]]}]]+Total[Table[(tunTrialPloy[i+12]-tunTrialPloy[i]-(freqRatio2cents[Sort[freqPeakTable[i]][[6]]/Sort[freqPeakTable[i]][[1]]/6]-freqRatio2cents[Sort[freqPeakTable[i+12]][[3]]/Sort[freqPeakTable[i+12]][[1]]/3]))^2, {i,noteRangeNum[[1]],40}]]];
+tunTrialFunction=tunTrialPloy[x]/.(NMinimize[Expand[temp],vars][[2]]);
+initialTuning=Association[Table[x->cent2shift[tunTrialFunction],{x,noteRangeNum[[1]],noteRangeNum[[2]]}]];
+
 (**********************************************************************************)
 (**********************************************************************************)
 (*5. entropy model*)
 (*run entropy model*)
 (*pick rough tune samples from original samples*)
 entropyRoughSampleConstruct[x_]:=(entropyRoughness=x;
-entropyRoughness=Round[entropyRoughness/100/wavFourierAnalyzePrecision];
+entropyRoughness=cent2shift[entropyRoughness];
 entropyRoughSamples=Table[i->Table[entropySamples[i][[j]],{j,1,Length[entropySamples[1]],entropyRoughness}],{i,noteRangeNum[[1]],noteRangeNum[[2]]}];
 entropyRoughSamples=Association[entropyRoughSamples];);
+
 (*tune shift file load or not*)
 If[OptionValue[loadTuneShift]=="",
 (*initialize tuning curve*)
 entropyShift=Association[Table[i->initialTuning[i]+entropyShiftIdeal[i],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]];
 (*print tuning curve dynamic plot*)
-Print[Dynamic[ListPlot[Table[{i,(-entropyShiftIdeal[i]+entropyShift[i])*100*wavFourierAnalyzePrecision},{i,0,87}],PlotRange->All,Frame->True,Axes->False,PlotStyle->Pink,AspectRatio->1/10,ImageSize->1600,GridLines->{Table[i,{i,wavAnalyzeRange[[1]],wavAnalyzeRange[[2]]}],Automatic},FrameLabel->{"Key","Deviation (cent)"},GridLinesStyle->LightRed]]];
+Print[Dynamic[ListPlot[Table[{i,shift2cent[-entropyShiftIdeal[i]+entropyShift[i]]},{i,0,87}],PlotRange->All,Frame->True,Axes->False,PlotStyle->Pink,AspectRatio->1/10,ImageSize->1600,GridLines->{Table[i,{i,wavAnalyzeRange[[1]],wavAnalyzeRange[[2]]}],Automatic},FrameLabel->{"Key","Deviation (cent)"},GridLinesStyle->LightRed]]];
 Do[(*step precision: cent*)
 entropyRoughSampleConstruct[x];
 
@@ -279,14 +286,14 @@ entropyShift=Association[Table[i->temp[[i-noteRangeNum[[1]]+1]],{i,noteRangeNum[
 entropyRoughSampleConstruct[1];
 entropyTotal=Total[Table[RotateRight[entropyRoughSamples[i],Round[entropyShift[i]/entropyRoughness]],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]];
 entropyPlotAxis=Table[pos2num[j],{j,1,Length[entropySamples[1]],entropyRoughness}];
-entropyCurvePlot=Framed[Column[{Graphics[Flatten[{LightRed,Line[{{noteRangeNum[[1]],0},{noteRangeNum[[2]],0}}],Table[temp=(entropyShift[x]-entropyShiftIdeal[x])*100*wavFourierAnalyzePrecision;{If[Mod[x-3,12]==0,{GrayLevel[.4],Disk[{x,temp},.6]}],If[num2wb[x],Black,If[x==48,Red,LightGray]],Disk[{x,temp},If[num2wb[x],.22,.33]]},{x,noteRangeNum[[1]],noteRangeNum[[2]]}]}],ImageSize->1600,Frame->True,GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,-100,100}]},GridLinesStyle->LightBlue,FrameLabel->{None,"Tuning Curve (cents)"},FrameTicks->{Automatic,Automatic}],
+entropyCurvePlot=Framed[Column[{Graphics[Flatten[{LightRed,Line[{{noteRangeNum[[1]],0},{noteRangeNum[[2]],0}}],Table[temp=shift2cent[entropyShift[x]-entropyShiftIdeal[x]];{If[Mod[x-3,12]==0,{GrayLevel[.4],Disk[{x,temp},.6]}],If[num2wb[x],Black,If[x==48,Red,LightGray]],Disk[{x,temp},If[num2wb[x],.22,.33]]},{x,noteRangeNum[[1]],noteRangeNum[[2]]}]}],ImageSize->1600,Frame->True,GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,-100,100}]},GridLinesStyle->LightBlue,FrameLabel->{None,"Tuning Curve (cents)"},FrameTicks->{Automatic,Automatic}],
 ListPlot[Transpose@{entropyPlotAxis,entropyTotal},Joined->True,PlotRange->All,Frame->True,Axes->False,PlotStyle->Pink,AspectRatio->1/10,ImageSize->1600,GridLines->{Table[i,{i,wavAnalyzeRange[[1]],wavAnalyzeRange[[2]]}],Automatic},FrameLabel->{"Key","Volume"},GridLinesStyle->LightRed]}]];
 
 (**********************************************************************************)
 (**********************************************************************************)
 (*6. capture peaks and generate tuning table*)
 
-tunedPitchDeviationTable=Association[Table[temp=Sort[freqPeakTable[i]*pitchErrorElimiate*2^(entropyShift[i]*100*wavFourierAnalyzePrecision/1200)];i->Table[{temp[[j]],freqRatio2cents[temp[[j]]/num2freq[i]/j]},{j,Length[temp]}],{i,Keys[freqPeakTable]}]];
+tunedPitchDeviationTable=Association[Table[temp=Sort[freqPeakTable[i]*pitchErrorElimiate*2^(shift2cent[entropyShift[i]]/1200)];i->Table[{temp[[j]],freqRatio2cents[temp[[j]]/num2freq[i]/j]},{j,Length[temp]}],{i,Keys[freqPeakTable]}]];
 (*generate tuning table*)
 playFreq[x_]:=EmitSound[Play[Sin[2*Pi*t*x],{t,0,0.2},SampleRate->44100]];
 (*create tuning table*)
@@ -320,7 +327,7 @@ wavSampleRate=wavImport[[1,2]];
 wavData=Mean[wavImport[[1,1]]];
 wavData=wavData/Max[wavData];
 wavInterpolation=Interpolation[wavData];
-wavStep=2^(entropyShift[wavNoteNum]*100*wavFourierAnalyzePrecision/1200)*pitchErrorElimiate;
+wavStep=2^(shift2cent[entropyShift[wavNoteNum]]/1200)*pitchErrorElimiate;
 ListPlay[Table[wavInterpolation[i],{i,1,Length[wavData],wavStep}],SampleRate->wavSampleRate,PlayRange->All]);
 If[DirectoryQ[OptionValue[exportTunedSamples]],ParallelDo[temp=entropyResultReconstruct[i];str=OptionValue[exportTunedSamples]<>ToString[noteNums[[i]]]<>".wav";Export[str,temp],{i,Length[noteNums]}];];
 
@@ -330,7 +337,9 @@ If[OptionValue[saveTuningFile]!="",Export[packageDirectory<>OptionValue[saveTuni
 (**********************************************************************************)
 (**********************************************************************************)
 (*8. return result*)
-report=Column[{tunTable,entropyCurvePlot}];
-If[OptionValue[saveTuningFile]!="",Export[packageDirectory<>OptionValue[saveTuningFile]<>"."<>OptionValue[reportFormat],report]];
-report
+If[OptionValue[saveTuningFile]!="",
+Export[packageDirectory<>OptionValue[saveTuningFile]<>"_curve."<>OptionValue[reportFormat],entropyCurvePlot];
+Export[packageDirectory<>OptionValue[saveTuningFile]<>"_tuning."<>OptionValue[reportFormat],tunTable];
+];
+Column[{tunTable,entropyCurvePlot}];
 ];
