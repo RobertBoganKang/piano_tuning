@@ -344,5 +344,5 @@ If[OptionValue[saveTuningFile]!="",
 Export[packageDirectory<>OptionValue[saveTuningFile]<>"_curve."<>OptionValue[reportFormat],entropyCurvePlot];
 Export[packageDirectory<>OptionValue[saveTuningFile]<>"_tuning."<>OptionValue[reportFormat],tunTable];
 ];
-Column[{tunTable,entropyCurvePlot}];
+Column[{tunTable,entropyCurvePlot}]
 ];
