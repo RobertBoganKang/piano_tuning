@@ -5,7 +5,7 @@ Similar to [tunelab](https://www.tunelab-world.com/).
 This algorithm is fully construct by myself, it dose not violate the copyright. 
 
 However, the temperment file is copied from tunelab apps, it is under the copyright of tunelab.
-### Pure Tuner
+### Pure Sound Tuner
 Since the inharmonicity model has been built, it is possible to remove all inharmonicity effect from the sound of note.
 
 It use the frequency domain compression method, and recover the sound. 
