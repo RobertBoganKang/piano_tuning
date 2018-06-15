@@ -1,6 +1,6 @@
 (* ::Package:: *)
 
-purePianoTuner[waveFolder_,freqFile_,inharmonicityFile_,exportFolder_]:=Module[{},
+purePianoTuner[waveFolder_,freqFile_,inharmonicityFile_,exportFolder_]:=Module[{temp},
 (*1. global parameters and functions*)
 (*note dictionaries*)
 noteDict=Association["C"->0,"C#"->1,"D"->2,"D#"->3,"E"->4,"F"->5,"F#"->6,"G"->7,"G#"->8,"A"->9,"A#"->10,"B"->11];
@@ -60,7 +60,9 @@ wavNames=Import[wavDirectory];
 noteNames=First[StringSplit[#,"."]]&/@wavNames;
 noteNums=note2num[#]&/@noteNames;
 
-purify[x_]:=(
+purify[x_]:=Module[{wavImport,wavIdealFreq,wavNoteNum,wavNoteFreq,wavData,wavLength,wavSampleRate,stretchFourier,wavFourierFreqRe,wavFourierFreqIm,
+wavInterpolationRe,wavInterpolationIm,wavNoteRealFreq,wavStepFreqSize,loopEnd,arrRe,arrIm,ptemp,wavStretch,wavFourier,wavFourier0,wavFourier1,
+wavFourierReconstructed0,wavFourierReconstructed1,wavFourierReconstructed,wavReconstruct,wavStretchedData},
 wavImport=Import[wavDirectory<>wavNames[[x]],"Sound"];
 wavIdealFreq=num2freq[noteNums[[x]]];
 wavNoteNum=noteNums[[x]];
@@ -87,17 +89,18 @@ loopEnd=wavFourierFreqIm[[-1,1]];
 arrRe=Table[0,{i,wavLength}];
 arrIm=Table[0,{i,wavLength}];
 While[True,
-temp0=wavNoteFreq*ihFunction[wavNoteNum,i/wavNoteRealFreq];
-If[temp0>loopEnd,Break[]];
-arrRe[[j]]=wavInterpolationRe[temp0];
-arrIm[[j]]=wavInterpolationIm[temp0];
+ptemp=wavNoteFreq*ihFunction[wavNoteNum,i/wavNoteRealFreq];
+If[ptemp>loopEnd,Break[]];
+arrRe[[j]]=wavInterpolationRe[ptemp];
+arrIm[[j]]=wavInterpolationIm[ptemp];
 i+=wavStepFreqSize;
 j+=1];
 arrRe[[;;Round[wavLength/2]]]+arrIm[[;;Round[wavLength/2]]]*I);
 
 wavStretch[wavData_]:=(
-If[OddQ[Length[wavData]],temp=Drop[wavData,-1]];
-wavFourier=Fourier[temp];
+ptemp=wavData;
+If[OddQ[Length[ptemp]],ptemp=Drop[ptemp,-1]];
+wavFourier=Fourier[ptemp];
 wavFourier0=wavFourier[[;;Round[wavLength/2]]];
 wavFourier1=Reverse[wavFourier][[;;Round[wavLength/2]]];
 (*reconstruct stretched data*)
@@ -109,8 +112,9 @@ Re[wavReconstruct]);
 
 
 wavStretchedData={wavStretch[wavData[[1]]],wavStretch[wavData[[2]]]};
-ListPlay[wavStretchedData,SampleRate->wavSampleRate,PlayRange->All]);
-Do[Speak[noteNums[[i]]];
+ListPlay[wavStretchedData,SampleRate->wavSampleRate,PlayRange->All]];
+
+ParallelDo[Print[noteNums[[i]]];
 Export[exportFolder<>ToString[noteNums[[i]]]<>".wav",purify[i]]
 ,{i,Length[noteNums]}];
 ];

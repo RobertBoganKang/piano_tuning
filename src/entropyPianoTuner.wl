@@ -1,6 +1,5 @@
 (* ::Package:: *)
 
-(*package directory*)
 packageDirectory=NotebookDirectory[];
 (*piano tuner function*)
 Options[entropyPianoTuner]={noteRange->{"A0","C8"},noteStart->"A0",
@@ -94,14 +93,14 @@ wavPartitions=Partition[wavData,Floor[wavAnalyzePartitionTime*wavSampleRate]];
 wavPartitionsLength=Length[wavPartitions];
 i=1;
 wavTrimData={};
-While[Max[Abs[wavPartitions[[i]]]]>=headSampleVolume&&i<=wavPartitionsLength;i++];
-While[Max[Abs[wavPartitions[[i]]]]>=tailSampleVolume&&i<=wavPartitionsLength,AppendTo[wavTrimData,wavPartitions[[i]]];i++];
-If[i<wavLeastAnalyzeTime/wavAnalyzePartitionTime,While[i<wavLeastAnalyzeTime/wavAnalyzePartitionTime&&i<=wavPartitionsLength,AppendTo[wavTrimData,wavPartitions[[i]]];i++];];
+While[Max[Abs[wavPartitions[[i]]]]>=headSampleVolume&&i<wavPartitionsLength;i++];
+While[Max[Abs[wavPartitions[[i]]]]>=tailSampleVolume&&i<wavPartitionsLength,AppendTo[wavTrimData,wavPartitions[[i]]];i++];
+If[i<wavLeastAnalyzeTime/wavAnalyzePartitionTime,While[i<wavLeastAnalyzeTime/wavAnalyzePartitionTime&&i<wavPartitionsLength,AppendTo[wavTrimData,wavPartitions[[i]]];i++];];
 wavTrimData=Flatten[wavTrimData];
 (*fourier analysis*)
 wavFourier=Abs[Fourier[wavTrimData]];
 (*squared spectrum for analyze*)
-wavFourier=Table[{Log[2.,((i-1)*wavSampleRate/Length[wavTrimData])/440]*12+48,wavFourier[[i]]^2},{i,IntegerPart[Length[wavFourier]/2]}];
+wavFourier=Table[{If[i==1,-100,Log[2.,((i-1)*wavSampleRate/Length[wavTrimData])/440]*12+48],wavFourier[[i]]^2},{i,IntegerPart[Length[wavFourier]/2]}];
 wavFourier=Select[wavFourier,First[#]<wavAnalyzeRange[[2]]+5&&First[#]>=wavAnalyzeRange[[1]]-5&];
 (*two sides are 0*)
 Do[If[wavFourier[[i,1]]<wavNoteNum-5||wavFourier[[i,1]]>wavAnalyzeRange[[2]]-wavAnalyzePitchMargin,wavFourier[[i,2]]=0],{i,Length[wavFourier]}];
@@ -153,9 +152,9 @@ wavPartitions=Partition[wavData,Floor[wavAnalyzePartitionTime*wavSampleRate]];
 wavPartitionsLength=Length[wavPartitions];
 i=1;
 wavTrimData={};
-While[Max[Abs[wavPartitions[[i]]]]>=headSampleVolume&&i<=wavPartitionsLength;i++];
-While[Max[Abs[wavPartitions[[i]]]]>=tailSampleVolume&&i<=wavPartitionsLength,AppendTo[wavTrimData,wavPartitions[[i]]];i++];
-If[i<wavLeastAnalyzeTime/wavAnalyzePartitionTime,While[i<wavLeastAnalyzeTime/wavAnalyzePartitionTime&&i<=wavPartitionsLength,AppendTo[wavTrimData,wavPartitions[[i]]];i++];];
+While[Max[Abs[wavPartitions[[i]]]]>=headSampleVolume&&i<wavPartitionsLength;i++];
+While[Max[Abs[wavPartitions[[i]]]]>=tailSampleVolume&&i<wavPartitionsLength,AppendTo[wavTrimData,wavPartitions[[i]]];i++];
+If[i<wavLeastAnalyzeTime/wavAnalyzePartitionTime,While[i<wavLeastAnalyzeTime/wavAnalyzePartitionTime&&i<wavPartitionsLength,AppendTo[wavTrimData,wavPartitions[[i]]];i++];];
 wavTrimData=Flatten[wavTrimData];
 (*fourier analysis*)
 wavFourier=Abs[Fourier[wavTrimData]];
