@@ -332,7 +332,7 @@ wavData=wavData/Max[wavData];
 wavInterpolation1=Interpolation[wavData];
 wavStep=2^(shift2cent[entropyShift[wavNoteNum]]/1200)*pitchErrorElimiate;
 temp={Table[wavInterpolation[i],{i,1,Length[wavData],wavStep}],Table[wavInterpolation1[i],{i,1,Length[wavData],wavStep}]};
-ListPlay[Table[wavInterpolation[i],{i,1,Length[wavData],wavStep}],SampleRate->wavSampleRate,PlayRange->All]);
+ListPlay[{Table[wavInterpolation[i],{i,1,Length[wavData],wavStep}],Table[wavInterpolation1[i],{i,1,Length[wavData],wavStep}]},SampleRate->wavSampleRate,PlayRange->All]);
 If[DirectoryQ[OptionValue[exportTunedSamples]],ParallelDo[temp=entropyResultReconstruct[i];str=OptionValue[exportTunedSamples]<>ToString[noteNums[[i]]]<>".wav";Export[str,temp],{i,Length[noteNums]}];];
 
 (*save tune shift*)
