@@ -20,7 +20,7 @@ wavCutFrequency,wavData,wavDirectory,wavFourier,wavFourierAnalyzePrecision,wavFo
 wavFourierCatchupPeakStartPosition,wavFourierInterpolation,wavGuessOneOvertoneLengthPosition,wavIdealFreq,wavImport,
 wavInterpolation,wavInterpolationReconstruct,wavLeastAnalyzeTime,wavNames,wavNoteNum,wavOneOvertoneSamples,wavOvertone,
 wavPartitions,wavPartitionsLength,wavPeakOvertone,wavPeakPosition,wavPitchShiftSample,wavSampleRate,wavStep,wavTrimData,
-whiteBlackKeyDict,cent2shift,shift2cent,wavInterpolation1},
+whiteBlackKeyDict,cent2shift,shift2cent,wavInterpolation1,i,x},
 (*1. global parameters and functions*)
 (*note dictionaries*)
 noteDict=Association["C"->0,"C#"->1,"D"->2,"D#"->3,"E"->4,"F"->5,"F#"->6,"G"->7,"G#"->8,"A"->9,"A#"->10,"B"->11];

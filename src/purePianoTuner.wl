@@ -1,6 +1,13 @@
 (* ::Package:: *)
 
-purePianoTuner[waveFolder_,freqFile_,inharmonicityFile_,exportFolder_]:=Module[{temp},
+(*pure piano sound tuner function*)
+Options[purePianoTuner]={noteRange->{"A0","C8"},noteStart->"A0",
+A4Frequency->440};
+purePianoTuner[waveFolder_,freqFile_,inharmonicityFile_,exportFolder_,OptionsPattern[]]:=Module[{freqRatio2cents,
+freqRatio2pitch,freqTable,i,ihFitScaling,ihfunc,ihFunction,ihFunctionExtraction,ihProperty,
+ihProperty2,ihPropertyFunction,j,largefunc,note2num,noteDict,noteNames,noteNums,noteRangeNum,
+noteRangeO,noteStartN,noteStartO,num2freq,num2note,num2wb,purify,revNoteDict,smallfunc,temp,temp1,
+wavDirectory,wavNames,whiteBlackKeyDict},
 (*1. global parameters and functions*)
 (*note dictionaries*)
 noteDict=Association["C"->0,"C#"->1,"D"->2,"D#"->3,"E"->4,"F"->5,"F#"->6,"G"->7,"G#"->8,"A"->9,"A#"->10,"B"->11];
@@ -12,11 +19,14 @@ note2num[x_]:=If[StringContainsQ[x,"#"],
 noteDict[ToUpperCase[StringTake[x,2]]]+12*ToExpression[StringDrop[x,2]]-9,
 noteDict[ToUpperCase[StringTake[x,1]]]+12*ToExpression[StringDrop[x,1]]-9];
 num2note[x_]:=revNoteDict[Mod[x+9,12]]<>ToString[Floor[(x+9)/12]];
-num2freq[x_]:=440*2^((x-48)/12);
+num2freq[x_]:=OptionValue[A4Frequency]*2^((x-48)/12);
 num2wb[x_]:=whiteBlackKeyDict[[Mod[x,12]+1]];
 (*note range*)
-noteRangeO={"A0","C8"};
+noteRangeO=OptionValue[noteRange];
 noteRangeNum=note2num/@noteRangeO;
+(*starting customer note*)
+noteStartO=OptionValue[noteStart];
+noteStartN=note2num[noteStartO]+1;
 (*frequency ratio utils*)
 freqRatio2cents[x_]:=1200.*Log[2,x];
 freqRatio2pitch[x_]:=12.*Log[2,x];
@@ -47,7 +57,10 @@ ihFunction=ihFunctionExtraction[ihProperty];
 (**********************************************************************************)
 (**********************************************************************************)
 (*3. stretch the piano into no-inharmonicity sound*)
-
+(*function: 
+stretchFourier[]
+wavStretch[]
+*)
 
 
 (**********************************************************************************)
@@ -55,10 +68,9 @@ ihFunction=ihFunctionExtraction[ihProperty];
 (*4. import samples*)
 (*import samples*)
 wavDirectory=waveFolder;
-
 wavNames=Import[wavDirectory];
 noteNames=First[StringSplit[#,"."]]&/@wavNames;
-noteNums=note2num[#]&/@noteNames;
+noteNums=If[LetterQ[StringTake[#,1]],note2num[#],ToExpression[#]-noteStartN]&/@noteNames;
 
 purify[x_]:=Module[{wavImport,wavIdealFreq,wavNoteNum,wavNoteFreq,wavData,wavLength,wavSampleRate,stretchFourier,wavFourierFreqRe,wavFourierFreqIm,
 wavInterpolationRe,wavInterpolationIm,wavNoteRealFreq,wavStepFreqSize,loopEnd,arrRe,arrIm,ptemp,wavStretch,wavFourier,wavFourier0,wavFourier1,
@@ -72,6 +84,7 @@ wavLength=Length[wavData[[1]]];
 wavLength=Floor[wavLength/2]*2;
 wavSampleRate=wavImport[[1,2]];
 
+(**********************************************************************************)
 (*input: audio data; output: stretched audio data*)
 stretchFourier[s_]:=(wavFourierFreqRe=Table[{(i-1)*wavSampleRate/wavLength,Re[s[[i]]]},{i,Length[s]}];
 wavFourierFreqIm=Table[{(i-1)*wavSampleRate/wavLength,Im[s[[i]]]},{i,Length[s]}];
@@ -83,6 +96,7 @@ wavNoteRealFreq=freqTable[wavNoteNum][[2]]/ihFunction[wavNoteNum,freqTable[wavNo
 wavStepFreqSize=wavSampleRate/wavLength;
 
 (*loop*)
+Clear[i,j];
 i=0;
 j=1;
 loopEnd=wavFourierFreqIm[[-1,1]];
@@ -109,8 +123,9 @@ wavFourierReconstructed1=stretchFourier[wavFourier1];
 wavFourierReconstructed=Flatten[{wavFourierReconstructed0,Reverse[wavFourierReconstructed1]}];
 wavReconstruct=InverseFourier[wavFourierReconstructed];
 Re[wavReconstruct]);
+(**********************************************************************************)
 
-
+(*do stretch sound*)
 wavStretchedData={wavStretch[wavData[[1]]],wavStretch[wavData[[2]]]};
 ListPlay[wavStretchedData,SampleRate->wavSampleRate,PlayRange->All]];
 

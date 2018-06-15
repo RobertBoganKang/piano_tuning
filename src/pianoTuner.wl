@@ -22,7 +22,7 @@ wavCatchupWeightedAverageBands,wavCutFrequency,wavData,wavDirectory,wavFourier,w
 wavFourierCatchupPeakStartPosition,wavGuessOneOvertoneLengthPosition,wavIdealFreq,wavImport,wavLeastAnalyzeTime,
 wavNames,wavOneOvertoneSamples,wavPartitions,wavPartitionsLength,wavPeakOvertone,wavPeakPosition,wavSampleRate,
 wavTrimData,weightedAverageOvertone,whiteBlackKeyDict,freqPropertyTable,wavInterpolation,wavStep,
-pitchDeviationTable,sampleReconstruct,freqProperty,wavInterpolation1},
+pitchDeviationTable,sampleReconstruct,freqProperty,wavInterpolation1,i,x,A,B,n},
 (*1. global parameters and functions*)
 (*note dictionaries*)
 noteDict=Association["C"->0,"C#"->1,"D"->2,"D#"->3,"E"->4,"F"->5,"F#"->6,"G"->7,"G#"->8,"A"->9,"A#"->10,"B"->11];
@@ -186,7 +186,6 @@ If[!tunFile,
 ihProperty0=SortBy[Table[
 fitData=overtoneTable[noteNums[[i]]];
 fitData=fitData/fitData[[1]];
-Clear[A,B,n];
 fitData=Table[{i-1,fitData[[i]]/i},{i,Length[fitData]}];
 (*A is always nearly 1, thus ignored*)
 Flatten@{noteNums[[i]],ihFitScaling*B/.FindFit[fitData,A*Sqrt[1+B*n^2],{{A,1},{B,0}},n]},{i,Length[noteNums]}],First];
