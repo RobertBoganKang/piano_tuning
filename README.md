@@ -46,7 +46,7 @@ The samples: [[link](https://github.com/RobertBoganKang/WesleiterUpright123); ho
 ![Grand Curve](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/grand%20curve.png)
 
 ### Entropy Method
-#### Tuning Data
+#### Tuning
 ![Entropy_Upright_Tuning](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/entropy%20upright%20tuning.png)
 #### Curve
 ![Entropy_Upright_Tuning](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/entropy%20upright%20curve.png)
