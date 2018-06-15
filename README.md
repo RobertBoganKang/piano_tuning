@@ -5,6 +5,10 @@ Similar to [tunelab](https://www.tunelab-world.com/).
 This algorithm is fully construct by myself, it dose not violate the copyright. 
 
 However, the temperment file is copied from tunelab apps, it is under the copyright of tunelab.
+### Pure Tuner
+Since the inharmonicity model has been built, it is possible to remove all inharmonicity effect from the sound of note.
+
+It use the frequency domain compression method, and recover the sound. 
 ## Entropy Method
 The optimization function is using entropy function, the function could achieve better result than the traditional tuning method. The chord is more sharp, and harmonious -- much less chaos. However, the scale alone sounds a little bit weird. 
 
@@ -26,6 +30,7 @@ There are 2 fully sampled pianos as demo.
 #### Audio demo
 * Traditional Tuning Method [[1](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/tuned%200.mp3), [2](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/tuned%201.mp3), [3](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/tuned%202.mp3)]
 * Entropy Tuning Method [[1](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/entropy%200.mp3), [2](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/entropy%201.mp3), [3](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/entropy%202.mp3)]
+* Pure Sound Tuner  [[1](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/pure%200.mp3), [2](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/pure%201.mp3), [3](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/pure%202.mp3)]
 ### Traditional Method
 #### Wesleiter Upright 123
 The samples: [[link](https://github.com/RobertBoganKang/WesleiterUpright123); however I used older samples sampled in 2011].
