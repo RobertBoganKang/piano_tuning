@@ -27,7 +27,7 @@ The calculation process is very long even though using parallel computing power.
 
 ## Demo
 There are 2 fully sampled pianos as demo.
-#### Audio demo
+### Audio demo
 * Traditional Tuning Method [[1](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/tuned%200.mp3), [2](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/tuned%201.mp3), [3](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/tuned%202.mp3)]
 * Entropy Tuning Method [[1](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/entropy%200.mp3), [2](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/entropy%201.mp3), [3](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/entropy%202.mp3)]
 * Pure Sound Tuner  [[1](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/pure%200.mp3), [2](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/pure%201.mp3), [3](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/pure%202.mp3)]
