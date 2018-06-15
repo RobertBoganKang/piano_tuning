@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     10494,        269]
-NotebookOptionsPosition[      8745,        229]
-NotebookOutlinePosition[      9078,        244]
-CellTagsIndexPosition[      9035,        241]
+NotebookDataLength[     21763,        559]
+NotebookOptionsPosition[     19335,        507]
+NotebookOutlinePosition[     19668,        522]
+CellTagsIndexPosition[     19625,        519]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -93,7 +93,8 @@ Cell[BoxData[
       "<>", "\"\<upright/\>\""}], ",", 
     RowBox[{"deleteNotes", "->", 
      RowBox[{"{", 
-      RowBox[{"\"\<B7\>\"", ",", "\"\<F#7\>\""}], "}"}]}], ",", 
+      RowBox[{"\"\<B7\>\"", ",", "\"\<F#7\>\"", ",", "\"\<G#7\>\""}], "}"}]}],
+     ",", 
     RowBox[{"exportTunedSamples", "\[Rule]", 
      RowBox[{
       RowBox[{"NotebookDirectory", "[", "]"}], "<>", 
@@ -111,7 +112,8 @@ Cell[BoxData[
    3.737761879576146*^9}, 3.7377620911444387`*^9, {3.737762152535331*^9, 
    3.737762153399983*^9}, {3.737769681059783*^9, 3.7377696980091877`*^9}, {
    3.737779710504117*^9, 3.7377797502535067`*^9}, {3.737948695398882*^9, 
-   3.737948695608411*^9}},ExpressionUUID->"1a8672ba-7008-4fb8-be02-\
+   3.737948695608411*^9}, {3.738034596533792*^9, 
+   3.73803460002921*^9}},ExpressionUUID->"1a8672ba-7008-4fb8-be02-\
 26b8e9d1d19c"],
 
 Cell[BoxData[
@@ -167,13 +169,13 @@ Cell[BoxData[{
  RowBox[{
   RowBox[{"Get", "[", 
    RowBox[{
-    RowBox[{"NotebookDirectory", "[", "]"}], "<>", 
-    "\"\<entropyPianoTuner.wl\>\""}], "]"}], ";"}]}], "Input",
+    RowBox[{"NotebookDirectory", "[", "]"}], "<>", "\"\<pianoTuner.wl\>\""}], 
+   "]"}], ";"}]}], "Input",
  CellChangeTimes->{{3.737095009055582*^9, 3.737095058264196*^9}, {
-  3.73716546721909*^9, 3.7371654681785793`*^9}, {3.7378278959831457`*^9, 
-  3.737827899072974*^9}},
- CellLabel->
-  "In[414]:=",ExpressionUUID->"e26d3820-f549-4dd0-aca4-52f91a7ef009"]
+   3.73716546721909*^9, 3.7371654681785793`*^9}, {3.7378278959831457`*^9, 
+   3.737827899072974*^9}, 
+   3.7380348695374928`*^9},ExpressionUUID->"e26d3820-f549-4dd0-aca4-\
+52f91a7ef009"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -221,8 +223,284 @@ Cell[BoxData[
    3.73786148455952*^9}, 3.7378617245999813`*^9, {3.737862386737294*^9, 
    3.7378623935835323`*^9}, {3.737880462101042*^9, 3.7378804627522097`*^9}, {
    3.737881162110735*^9, 3.7378811622814627`*^9}, {3.737948686456841*^9, 
-   3.737948686762282*^9}},ExpressionUUID->"a987b593-1220-4157-a07a-\
-0e8b91a05349"]
+   3.737948686762282*^9}},
+ CellLabel->"In[18]:=",ExpressionUUID->"a987b593-1220-4157-a07a-0e8b91a05349"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Purify Piano", "Chapter",
+ CellChangeTimes->{{3.737827861345881*^9, 3.7378278649756536`*^9}, {
+  3.73803460825207*^9, 
+  3.7380346217488613`*^9}},ExpressionUUID->"641c71c5-6677-46fd-bdfa-\
+6ac3e4f06b5e"],
+
+Cell[CellGroupData[{
+
+Cell["Import Function", "Subchapter",
+ CellChangeTimes->{{3.73782787030803*^9, 
+  3.737827875396873*^9}},ExpressionUUID->"36da533d-a1dd-41a3-95c8-\
+d113fbf0063b"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Clear", "[", "\"\<Global`*\>\"", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Get", "[", 
+   RowBox[{
+    RowBox[{"NotebookDirectory", "[", "]"}], "<>", 
+    "\"\<entropyPianoTuner.wl\>\""}], "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Get", "[", 
+   RowBox[{
+    RowBox[{"NotebookDirectory", "[", "]"}], "<>", 
+    "\"\<purePianoTuner.wl\>\""}], "]"}], ";"}]}], "Input",
+ CellChangeTimes->{{3.737095009055582*^9, 3.737095058264196*^9}, {
+  3.73716546721909*^9, 3.7371654681785793`*^9}, {3.7378278959831457`*^9, 
+  3.737827899072974*^9}, {3.73803469506711*^9, 3.738034699860114*^9}},
+ CellLabel->"In[13]:=",ExpressionUUID->"e3cb154f-cca4-480d-a841-337dbb09a65e"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Test", "Subchapter",
+ CellChangeTimes->{{3.73782787030803*^9, 
+  3.737827892913656*^9}},ExpressionUUID->"c041433d-b518-4a96-bd9e-\
+307febad4203"],
+
+Cell[BoxData[
+ RowBox[{"a", "=", 
+  RowBox[{"pianoTuner", "[", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"NotebookDirectory", "[", "]"}], "<>", "\"\<../res/samples/\>\"",
+      "<>", "\"\<upright/\>\""}], ",", 
+    RowBox[{"deleteNotes", "->", 
+     RowBox[{"{", 
+      RowBox[{"\"\<B7\>\"", ",", "\"\<F#7\>\"", ",", "\"\<G#7\>\""}], "}"}]}],
+     ",", 
+    RowBox[{"saveTuningFile", "\[Rule]", "\"\<upright\>\""}]}], 
+   "]"}]}]], "Input",
+ CellChangeTimes->{{3.7380346303098583`*^9, 3.738034639554109*^9}, {
+  3.738034923614951*^9, 
+  3.738034924565784*^9}},ExpressionUUID->"978e453e-3151-4a2d-9b78-\
+7b3707b3d7da"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"purify", "[", "x_", "]"}], ":=", 
+   RowBox[{"(", "\n", 
+    RowBox[{
+     RowBox[{"wavImport", "=", 
+      RowBox[{"Import", "[", 
+       RowBox[{
+        RowBox[{"wavDirectory", "<>", 
+         RowBox[{"wavNames", "[", 
+          RowBox[{"[", "x", "]"}], "]"}]}], ",", "\"\<Sound\>\""}], "]"}]}], 
+     ";", "\n", 
+     RowBox[{"wavIdealFreq", "=", 
+      RowBox[{"num2freq", "[", 
+       RowBox[{"noteNums", "[", 
+        RowBox[{"[", "x", "]"}], "]"}], "]"}]}], ";", "\n", 
+     RowBox[{"wavNoteNum", "=", 
+      RowBox[{"noteNums", "[", 
+       RowBox[{"[", "x", "]"}], "]"}]}], ";", "\n", 
+     RowBox[{"wavNoteFreq", "=", 
+      RowBox[{"num2freq", "[", "wavNoteNum", "]"}]}], ";", "\n", 
+     RowBox[{"wavData", "=", 
+      RowBox[{"wavImport", "[", 
+       RowBox[{"[", 
+        RowBox[{"1", ",", "1"}], "]"}], "]"}]}], ";", "\n", 
+     RowBox[{"wavLength", "=", 
+      RowBox[{"Length", "[", 
+       RowBox[{"wavData", "[", 
+        RowBox[{"[", "1", "]"}], "]"}], "]"}]}], ";", "\n", 
+     RowBox[{"wavLength", "=", 
+      RowBox[{
+       RowBox[{"Floor", "[", 
+        RowBox[{"wavLength", "/", "2"}], "]"}], "*", "2"}]}], ";", "\n", 
+     RowBox[{"wavSampleRate", "=", 
+      RowBox[{"wavImport", "[", 
+       RowBox[{"[", 
+        RowBox[{"1", ",", "2"}], "]"}], "]"}]}], ";", "\n", "\n", 
+     RowBox[{"(*", 
+      RowBox[{
+       RowBox[{"input", ":", " ", 
+        RowBox[{"audio", " ", "data"}]}], ";", " ", 
+       RowBox[{"output", ":", " ", 
+        RowBox[{"stretched", " ", "audio", " ", "data"}]}]}], "*)"}], "\n", 
+     RowBox[{
+      RowBox[{"stretchFourier", "[", "s_", "]"}], ":=", 
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{"wavFourierFreqRe", "=", 
+         RowBox[{"Table", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{"i", "-", "1"}], ")"}], "*", 
+              RowBox[{"wavSampleRate", "/", "wavLength"}]}], ",", 
+             RowBox[{"Re", "[", 
+              RowBox[{"s", "[", 
+               RowBox[{"[", "i", "]"}], "]"}], "]"}]}], "}"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"i", ",", 
+             RowBox[{"Length", "[", "s", "]"}]}], "}"}]}], "]"}]}], ";", "\n", 
+        RowBox[{"wavFourierFreqIm", "=", 
+         RowBox[{"Table", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{"i", "-", "1"}], ")"}], "*", 
+              RowBox[{"wavSampleRate", "/", "wavLength"}]}], ",", 
+             RowBox[{"Im", "[", 
+              RowBox[{"s", "[", 
+               RowBox[{"[", "i", "]"}], "]"}], "]"}]}], "}"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"i", ",", 
+             RowBox[{"Length", "[", "s", "]"}]}], "}"}]}], "]"}]}], ";", "\n", 
+        RowBox[{"wavInterpolationRe", "=", 
+         RowBox[{"Interpolation", "[", "wavFourierFreqRe", "]"}]}], ";", "\n", 
+        RowBox[{"wavInterpolationIm", "=", 
+         RowBox[{"Interpolation", "[", "wavFourierFreqIm", "]"}]}], ";", "\n",
+         "\n", 
+        RowBox[{"(*", 
+         RowBox[{"tune", " ", "to", " ", "standard", " ", "frequency"}], 
+         "*)"}], "\n", 
+        RowBox[{"wavNoteRealFreq", "=", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"freqTable", "[", "wavNoteNum", "]"}], "[", 
+           RowBox[{"[", "2", "]"}], "]"}], "/", 
+          RowBox[{"ihFunction", "[", 
+           RowBox[{"wavNoteNum", ",", 
+            RowBox[{
+             RowBox[{"freqTable", "[", "wavNoteNum", "]"}], "[", 
+             RowBox[{"[", "1", "]"}], "]"}]}], "]"}]}]}], ";", "\n", 
+        RowBox[{"wavStepFreqSize", "=", 
+         RowBox[{"wavSampleRate", "/", "wavLength"}]}], ";", "\n", "\n", 
+        RowBox[{"(*", "loop", "*)"}], "\n", 
+        RowBox[{"i", "=", "0"}], ";", "\n", 
+        RowBox[{"j", "=", "1"}], ";", "\n", 
+        RowBox[{"loopEnd", "=", 
+         RowBox[{"wavFourierFreqIm", "[", 
+          RowBox[{"[", 
+           RowBox[{
+            RowBox[{"-", "1"}], ",", "1"}], "]"}], "]"}]}], ";", "\n", 
+        RowBox[{"arrRe", "=", 
+         RowBox[{"Table", "[", 
+          RowBox[{"0", ",", 
+           RowBox[{"{", 
+            RowBox[{"i", ",", "wavLength"}], "}"}]}], "]"}]}], ";", "\n", 
+        RowBox[{"arrIm", "=", 
+         RowBox[{"Table", "[", 
+          RowBox[{"0", ",", 
+           RowBox[{"{", 
+            RowBox[{"i", ",", "wavLength"}], "}"}]}], "]"}]}], ";", "\n", 
+        RowBox[{"While", "[", 
+         RowBox[{"True", ",", "\n", 
+          RowBox[{
+           RowBox[{"temp0", "=", 
+            RowBox[{"wavNoteFreq", "*", 
+             RowBox[{"ihFunction", "[", 
+              RowBox[{"wavNoteNum", ",", 
+               RowBox[{"i", "/", "wavNoteRealFreq"}]}], "]"}]}]}], ";", "\n", 
+           
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{"temp0", ">", "loopEnd"}], ",", 
+             RowBox[{"Break", "[", "]"}]}], "]"}], ";", "\n", 
+           RowBox[{
+            RowBox[{"arrRe", "[", 
+             RowBox[{"[", "j", "]"}], "]"}], "=", 
+            RowBox[{"wavInterpolationRe", "[", "temp0", "]"}]}], ";", "\n", 
+           RowBox[{
+            RowBox[{"arrIm", "[", 
+             RowBox[{"[", "j", "]"}], "]"}], "=", 
+            RowBox[{"wavInterpolationIm", "[", "temp0", "]"}]}], ";", "\n", 
+           RowBox[{"i", "+=", "wavStepFreqSize"}], ";", "\n", 
+           RowBox[{"j", "+=", "1"}]}]}], "]"}], ";", "\n", 
+        RowBox[{
+         RowBox[{"arrRe", "[", 
+          RowBox[{"[", 
+           RowBox[{";;", 
+            RowBox[{"Round", "[", 
+             RowBox[{"wavLength", "/", "2"}], "]"}]}], "]"}], "]"}], "+", 
+         RowBox[{
+          RowBox[{"arrIm", "[", 
+           RowBox[{"[", 
+            RowBox[{";;", 
+             RowBox[{"Round", "[", 
+              RowBox[{"wavLength", "/", "2"}], "]"}]}], "]"}], "]"}], "*", 
+          "I"}]}]}], ")"}]}], ";", "\n", "\n", 
+     RowBox[{
+      RowBox[{"wavStretch", "[", "wavData_", "]"}], ":=", 
+      RowBox[{"(", "\n", 
+       RowBox[{
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"OddQ", "[", 
+           RowBox[{"Length", "[", "wavData", "]"}], "]"}], ",", 
+          RowBox[{"temp", "=", 
+           RowBox[{"Drop", "[", 
+            RowBox[{"wavData", ",", 
+             RowBox[{"-", "1"}]}], "]"}]}]}], "]"}], ";", "\n", 
+        RowBox[{"wavFourier", "=", 
+         RowBox[{"Fourier", "[", "temp", "]"}]}], ";", "\n", 
+        RowBox[{"wavFourier0", "=", 
+         RowBox[{"wavFourier", "[", 
+          RowBox[{"[", 
+           RowBox[{";;", 
+            RowBox[{"Round", "[", 
+             RowBox[{"wavLength", "/", "2"}], "]"}]}], "]"}], "]"}]}], ";", 
+        "\n", 
+        RowBox[{"wavFourier1", "=", 
+         RowBox[{
+          RowBox[{"Reverse", "[", "wavFourier", "]"}], "[", 
+          RowBox[{"[", 
+           RowBox[{";;", 
+            RowBox[{"Round", "[", 
+             RowBox[{"wavLength", "/", "2"}], "]"}]}], "]"}], "]"}]}], ";", 
+        "\n", 
+        RowBox[{"(*", 
+         RowBox[{"reconstruct", " ", "stretched", " ", "data"}], "*)"}], "\n", 
+        RowBox[{"wavFourierReconstructed0", "=", 
+         RowBox[{"stretchFourier", "[", "wavFourier0", "]"}]}], ";", "\n", 
+        RowBox[{"wavFourierReconstructed1", "=", 
+         RowBox[{"stretchFourier", "[", "wavFourier1", "]"}]}], ";", "\n", 
+        RowBox[{"wavFourierReconstructed", "=", 
+         RowBox[{"Flatten", "[", 
+          RowBox[{"{", 
+           RowBox[{"wavFourierReconstructed0", ",", 
+            RowBox[{"Reverse", "[", "wavFourierReconstructed1", "]"}]}], 
+           "}"}], "]"}]}], ";", "\n", 
+        RowBox[{"wavReconstruct", "=", 
+         RowBox[{"InverseFourier", "[", "wavFourierReconstructed", "]"}]}], 
+        ";", "\n", 
+        RowBox[{"Re", "[", "wavReconstruct", "]"}]}], ")"}]}], ";", "\n", 
+     "\n", "\n", 
+     RowBox[{"wavStretchedData", "=", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"wavStretch", "[", 
+         RowBox[{"wavData", "[", 
+          RowBox[{"[", "1", "]"}], "]"}], "]"}], ",", 
+        RowBox[{"wavStretch", "[", 
+         RowBox[{"wavData", "[", 
+          RowBox[{"[", "2", "]"}], "]"}], "]"}]}], "}"}]}], ";", "\n", 
+     RowBox[{"ListPlay", "[", 
+      RowBox[{"wavStretchedData", ",", 
+       RowBox[{"SampleRate", "->", "wavSampleRate"}], ",", 
+       RowBox[{"PlayRange", "->", "All"}]}], "]"}]}], ")"}]}], ";"}]], "Input",\
+
+ CellLabel->"In[1]:=",ExpressionUUID->"a37c2721-9489-486a-8c3e-1b81bb33cc58"]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]
@@ -254,20 +532,32 @@ Cell[1132, 41, 460, 12, 55, "Input",ExpressionUUID->"49c7b137-eb3f-4356-ab5b-cac
 Cell[CellGroupData[{
 Cell[1629, 58, 151, 3, 65, "Subchapter",ExpressionUUID->"a708a49e-6584-4d63-bf4e-ec5be05cf14b"],
 Cell[1783, 63, 1030, 21, 55, "Input",ExpressionUUID->"5e7c9a02-ff2b-4f76-bf56-309875fa6d8d"],
-Cell[2816, 86, 1488, 28, 55, "Input",ExpressionUUID->"1a8672ba-7008-4fb8-be02-26b8e9d1d19c"],
-Cell[4307, 116, 1367, 28, 78, "Input",ExpressionUUID->"ba77aba9-93aa-4ff3-8fba-0ea759508292"]
+Cell[2816, 86, 1562, 30, 78, "Input",ExpressionUUID->"1a8672ba-7008-4fb8-be02-26b8e9d1d19c"],
+Cell[4381, 118, 1367, 28, 78, "Input",ExpressionUUID->"ba77aba9-93aa-4ff3-8fba-0ea759508292"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[5723, 150, 168, 3, 69, "Chapter",ExpressionUUID->"f572a5b9-dbcd-48e7-9ec0-c555b97d1ff6"],
+Cell[5797, 152, 168, 3, 69, "Chapter",ExpressionUUID->"f572a5b9-dbcd-48e7-9ec0-c555b97d1ff6"],
 Cell[CellGroupData[{
-Cell[5916, 157, 162, 3, 65, "Subchapter",ExpressionUUID->"acb28dc0-aad0-4929-8498-15c3b13ffb15"],
-Cell[6081, 162, 519, 13, 55, "Input",ExpressionUUID->"e26d3820-f549-4dd0-aca4-52f91a7ef009"]
+Cell[5990, 159, 162, 3, 65, "Subchapter",ExpressionUUID->"acb28dc0-aad0-4929-8498-15c3b13ffb15"],
+Cell[6155, 164, 515, 13, 55, "Input",ExpressionUUID->"e26d3820-f549-4dd0-aca4-52f91a7ef009"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[6637, 180, 151, 3, 65, "Subchapter",ExpressionUUID->"9a94b353-1697-43b3-b7ed-1a589bf53b6e"],
-Cell[6791, 185, 996, 19, 78, "Input",ExpressionUUID->"d31856c5-443d-4d0b-9d53-dd872cfe21d3"],
-Cell[7790, 206, 915, 18, 55, "Input",ExpressionUUID->"a987b593-1220-4157-a07a-0e8b91a05349"]
+Cell[6707, 182, 151, 3, 65, "Subchapter",ExpressionUUID->"9a94b353-1697-43b3-b7ed-1a589bf53b6e"],
+Cell[6861, 187, 996, 19, 78, "Input",ExpressionUUID->"d31856c5-443d-4d0b-9d53-dd872cfe21d3"],
+Cell[7860, 208, 937, 18, 55, "Input",ExpressionUUID->"a987b593-1220-4157-a07a-0e8b91a05349"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[8846, 232, 209, 4, 69, "Chapter",ExpressionUUID->"641c71c5-6677-46fd-bdfa-6ac3e4f06b5e"],
+Cell[CellGroupData[{
+Cell[9080, 240, 162, 3, 65, "Subchapter",ExpressionUUID->"36da533d-a1dd-41a3-95c8-d113fbf0063b"],
+Cell[9245, 245, 730, 17, 78, "Input",ExpressionUUID->"e3cb154f-cca4-480d-a841-337dbb09a65e"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[10012, 267, 151, 3, 65, "Subchapter",ExpressionUUID->"c041433d-b518-4a96-bd9e-307febad4203"],
+Cell[10166, 272, 614, 16, 55, "Input",ExpressionUUID->"978e453e-3151-4a2d-9b78-7b3707b3d7da"],
+Cell[10783, 290, 8512, 212, 1228, "Input",ExpressionUUID->"a37c2721-9489-486a-8c3e-1b81bb33cc58"]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]

@@ -22,7 +22,7 @@ wavCatchupWeightedAverageBands,wavCutFrequency,wavData,wavDirectory,wavFourier,w
 wavFourierCatchupPeakStartPosition,wavGuessOneOvertoneLengthPosition,wavIdealFreq,wavImport,wavLeastAnalyzeTime,
 wavNames,wavOneOvertoneSamples,wavPartitions,wavPartitionsLength,wavPeakOvertone,wavPeakPosition,wavSampleRate,
 wavTrimData,weightedAverageOvertone,whiteBlackKeyDict,freqPropertyTable,wavInterpolation,wavStep,
-pitchDeviationTable,sampleReconstruct,freqProperty},
+pitchDeviationTable,sampleReconstruct,freqProperty,wavInterpolation1},
 (*1. global parameters and functions*)
 (*note dictionaries*)
 noteDict=Association["C"->0,"C#"->1,"D"->2,"D#"->3,"E"->4,"F"->5,"F#"->6,"G"->7,"G#"->8,"A"->9,"A#"->10,"B"->11];
@@ -168,6 +168,10 @@ overtoneSequence=Union[Prepend[overtoneSequence,catchupOvertone]];
 (*find out all overtone properties*)
 temp=ParallelTable[overtoneAnalysis[i],{i,Length[noteNums]}];
 freqPropertyTable=temp[[;;,2]];
+(*export frequency data*)
+temp2=StringRiffle[Table[ToString[num2note[freqPropertyTable[[i,1]]]]<>"  "<>ToString[freqPropertyTable[[i,2]]],{i,Length[freqPropertyTable]}],"\n"];
+If[OptionValue[saveTuningFile]!="",
+Export[packageDirectory<>OptionValue[saveTuningFile]<>"_frequency",temp2,"Text"]];
 overtoneTable=temp[[;;,1]];
 overtoneTable=Association[overtoneTable];
 
@@ -194,7 +198,7 @@ deleteNotesO=If[StringQ[#],note2num[#],#-noteStartN]&/@deleteNotesO;
 ihProperty=Select[ihProperty,!MemberQ[deleteNotesO,#[[1]]]&];
 (*export tuning file*)
 tunFilePrepare=StringRiffle[Table[num2note[ihProperty[[i,1]]]<>"  "<>ToString[ihProperty[[i,2]]],{i,Length[ihProperty]}],"\n"];
-If[OptionValue[saveTuningFile]!="",Export[packageDirectory<>OptionValue[saveTuningFile],tunFilePrepare,"Text"]],
+If[OptionValue[saveTuningFile]!="",Export[packageDirectory<>OptionValue[saveTuningFile]<>"_inharmonicity",tunFilePrepare,"Text"]],
 
 (*else: tuning file read*)
 tunFilePrepare=Import[folder,"Text"];
@@ -305,16 +309,19 @@ TableSpacing->{.5,.3}]];
 sampleReconstruct[x_,c_]:=(
 wavImport=Import[wavDirectory<>wavNames[[x]],"Sound"];
 wavSampleRate=wavImport[[1,2]];
-wavData=Mean[wavImport[[1,1]]];
+wavData=wavImport[[1,1,1]];
 wavData=wavData/Max[wavData];
 wavInterpolation=Interpolation[wavData];
+wavData=wavImport[[1,1,2]];
+wavData=wavData/Max[wavData];
+wavInterpolation1=Interpolation[wavData];
 wavStep=2^(c/1200);
-Table[wavInterpolation[i],{i,1,Length[wavData],wavStep}]);
+temp={Table[wavInterpolation[i],{i,1,Length[wavData],wavStep}],Table[wavInterpolation1[i],{i,1,Length[wavData],wavStep}]};
+ListPlay[temp,SampleRate->wavSampleRate,PlayRange->All]);
 (*export sample files into exportTunedSamples Folder*)
 If[StringContainsQ[OptionValue[exportTunedSamples],{"/","\\"}],
 pitchDeviationTable=Association[Table[freqPropertyTable[[k,1]]->freqRatio2cents[tunRestoreFunction[freqPropertyTable[[k,1]],freqPropertyTable[[k,2,1]]]/freqPropertyTable[[k,2,2]]],{k,Length[freqPropertyTable]}]];
-ParallelDo[Export[OptionValue[exportTunedSamples]<>ToString[noteNums[[i]]]<>".wav",
-ListPlay[sampleReconstruct[i,pitchDeviationTable[noteNums[[i]]]],SampleRate->wavSampleRate,PlayRange->All]],
+ParallelDo[Export[OptionValue[exportTunedSamples]<>ToString[noteNums[[i]]]<>".wav",sampleReconstruct[i,pitchDeviationTable[noteNums[[i]]]]],
 {i,Length[noteNums]}];
 ];
 
@@ -323,8 +330,8 @@ ListPlay[sampleReconstruct[i,pitchDeviationTable[noteNums[[i]]]],SampleRate->wav
 (*9. return result*)
 panel=Framed[Column[{tunCurvePlot,tunDeviationPlot,ihPlot}]];
 If[OptionValue[saveTuningFile]!="",
-Export[packageDirectory<>OptionValue[saveTuningFile]<>" curve."<>OptionValue[reportFormat],panel];
-Export[packageDirectory<>OptionValue[saveTuningFile]<>" tuning."<>OptionValue[reportFormat],tunTable];
+Export[packageDirectory<>OptionValue[saveTuningFile]<>"_curve."<>OptionValue[reportFormat],panel];
+Export[packageDirectory<>OptionValue[saveTuningFile]<>"_tuning."<>OptionValue[reportFormat],tunTable];
 ];
 Column[{tunTable,Deploy[panel]}]
 ];

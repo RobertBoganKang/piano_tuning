@@ -21,7 +21,7 @@ wavCutFrequency,wavData,wavDirectory,wavFourier,wavFourierAnalyzePrecision,wavFo
 wavFourierCatchupPeakStartPosition,wavFourierInterpolation,wavGuessOneOvertoneLengthPosition,wavIdealFreq,wavImport,
 wavInterpolation,wavInterpolationReconstruct,wavLeastAnalyzeTime,wavNames,wavNoteNum,wavOneOvertoneSamples,wavOvertone,
 wavPartitions,wavPartitionsLength,wavPeakOvertone,wavPeakPosition,wavPitchShiftSample,wavSampleRate,wavStep,wavTrimData,
-whiteBlackKeyDict,cent2shift,shift2cent},
+whiteBlackKeyDict,cent2shift,shift2cent,wavInterpolation1},
 (*1. global parameters and functions*)
 (*note dictionaries*)
 noteDict=Association["C"->0,"C#"->1,"D"->2,"D#"->3,"E"->4,"F"->5,"F#"->6,"G"->7,"G#"->8,"A"->9,"A#"->10,"B"->11];
@@ -324,10 +324,14 @@ entropyResultReconstruct[x_]:=(
 wavImport=Import[wavDirectory<>wavNames[[x]],"Sound"];
 wavNoteNum=noteNums[[x]];
 wavSampleRate=wavImport[[1,2]];
-wavData=Mean[wavImport[[1,1]]];
+wavData=wavImport[[1,1,1]];
 wavData=wavData/Max[wavData];
 wavInterpolation=Interpolation[wavData];
+wavData=wavImport[[1,1,2]];
+wavData=wavData/Max[wavData];
+wavInterpolation1=Interpolation[wavData];
 wavStep=2^(shift2cent[entropyShift[wavNoteNum]]/1200)*pitchErrorElimiate;
+temp={Table[wavInterpolation[i],{i,1,Length[wavData],wavStep}],Table[wavInterpolation1[i],{i,1,Length[wavData],wavStep}]};
 ListPlay[Table[wavInterpolation[i],{i,1,Length[wavData],wavStep}],SampleRate->wavSampleRate,PlayRange->All]);
 If[DirectoryQ[OptionValue[exportTunedSamples]],ParallelDo[temp=entropyResultReconstruct[i];str=OptionValue[exportTunedSamples]<>ToString[noteNums[[i]]]<>".wav";Export[str,temp],{i,Length[noteNums]}];];
 
