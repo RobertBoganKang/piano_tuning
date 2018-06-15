@@ -8,7 +8,7 @@ However, the temperment file is copied from tunelab apps, it is under the copyri
 ### Pure Sound Tuner
 Since the inharmonicity model has been built, it is possible to remove all inharmonicity effect from the sound of note.
 
-It use the frequency domain compression method, and recover the sound. 
+It use the frequency domain compression method, and then, recover the sound. 
 ## Entropy Method
 The optimization function is using entropy function, the function could achieve better result than the traditional tuning method. The chord is more sharp, and harmonious -- much less chaos. However, the scale alone sounds a little bit weird. 
 
