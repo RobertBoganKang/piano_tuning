@@ -20,7 +20,7 @@ wavCutFrequency,wavData,wavDirectory,wavFourier,wavFourierAnalyzePrecision,wavFo
 wavFourierCatchupPeakStartPosition,wavFourierInterpolation,wavGuessOneOvertoneLengthPosition,wavIdealFreq,wavImport,
 wavInterpolation,wavInterpolationReconstruct,wavLeastAnalyzeTime,wavNames,wavNoteNum,wavOneOvertoneSamples,wavOvertone,
 wavPartitions,wavPartitionsLength,wavPeakOvertone,wavPeakPosition,wavPitchShiftSample,wavSampleRate,wavStep,wavTrimData,
-whiteBlackKeyDict,cent2shift,shift2cent,wavInterpolation1,i,x},
+whiteBlackKeyDict,cent2shift,shift2cent,wavInterpolation1,i,x,cents2freqRatio,pitch2freqRatio,ckDirectoryExistAndCreate},
 (*1. global parameters and functions*)
 (*note dictionaries*)
 noteDict=Association["C"->0,"C#"->1,"D"->2,"D#"->3,"E"->4,"F"->5,"F#"->6,"G"->7,"G#"->8,"A"->9,"A#"->10,"B"->11];
@@ -32,7 +32,7 @@ note2num[x_]:=If[StringContainsQ[x,"#"],
 noteDict[ToUpperCase[StringTake[x,2]]]+12*ToExpression[StringDrop[x,2]]-9,
 noteDict[ToUpperCase[StringTake[x,1]]]+12*ToExpression[StringDrop[x,1]]-9];
 num2note[x_]:=revNoteDict[Mod[x+9,12]]<>ToString[Floor[(x+9)/12]];
-num2freq[x_]:=OptionValue[A4Frequency]*2^((x-48)/12);
+num2freq[x_]:=OptionValue[A4Frequency]*pitch2freqRatio[x-48];
 num2wb[x_]:=whiteBlackKeyDict[[Mod[x,12]+1]];
 (*note range*)
 noteRangeO=OptionValue[noteRange];
@@ -43,6 +43,10 @@ noteStartN=note2num[noteStartO]+1;
 (*frequency ratio utils*)
 freqRatio2cents[x_]:=1200.*Log[2,x];
 freqRatio2pitch[x_]:=12.*Log[2,x];
+cents2freqRatio[x_]:=2^(x/1200.);
+pitch2freqRatio[x_]:=2^(x/12.);
+(*directory handling*)
+ckDirectoryExistAndCreate[dir_]:=If[!DirectoryQ[dir],CreateDirectory[dir]];
 
 (**********************************************************************************)
 (**********************************************************************************)
@@ -215,7 +219,7 @@ noteNums[[x]]->1.*overtoneSequence*wavIdealFreq
 (*find all frequency peaks*)
 freqPeakTable=Association[ParallelTable[overtoneAnalysis[i],{i,Length[noteNums]}]];
 (*eliminate pitch error*)
-pitchErrorElimiate=num2freq[48]/First[freqPeakTable[48]]/2^(shift2cent[entropyShift[48]]/1200);
+pitchErrorElimiate=num2freq[48]/First[freqPeakTable[48]]/cents2freqRatio[shift2cent[entropyShift[48]]];
 (*initial tuning of entropy algorithm: 
 Similar to traditional tuning method (simpler method): <=C#4: 6:3, > C#4: 4:1*)
 tunPolyOrder=3;
@@ -278,7 +282,7 @@ ListPlot[Transpose@{entropyPlotAxis,entropyTotal},Joined->True,PlotRange->All,Fr
 {x,{1,0.5}}];,
 
 (*else: read tune shift file*)
-temp=ToExpression/@StringSplit[Import["/home/robert/gits/Piano_Tuning/res/samples/tune_shift","Text"]];
+temp=ToExpression/@StringSplit[Import[OptionValue[loadTuneShift],"Text"]];
 entropyShift=Association[Table[i->temp[[i-noteRangeNum[[1]]+1]],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]];
 ];
 (*plot the tuning curve*)
@@ -292,7 +296,7 @@ ListPlot[Transpose@{entropyPlotAxis,entropyTotal},Joined->True,PlotRange->All,Fr
 (**********************************************************************************)
 (*6. capture peaks and generate tuning table*)
 
-tunedPitchDeviationTable=Association[Table[temp=Sort[freqPeakTable[i]*pitchErrorElimiate*2^(shift2cent[entropyShift[i]]/1200)];i->Table[{temp[[j]],freqRatio2cents[temp[[j]]/num2freq[i]/j]},{j,Length[temp]}],{i,Keys[freqPeakTable]}]];
+tunedPitchDeviationTable=Association[Table[temp=Sort[freqPeakTable[i]*pitchErrorElimiate*cents2freqRatio[shift2cent[entropyShift[i]]]];i->Table[{temp[[j]],freqRatio2cents[temp[[j]]/num2freq[i]/j]},{j,Length[temp]}],{i,Keys[freqPeakTable]}]];
 (*generate tuning table*)
 playFreq[x_]:=EmitSound[Play[Sin[2*Pi*t*x],{t,0,0.2},SampleRate->44100]];
 (*create tuning table*)
@@ -329,13 +333,13 @@ wavInterpolation=Interpolation[wavData];
 wavData=wavImport[[1,1,2]];
 wavData=wavData/Max[wavData];
 wavInterpolation1=Interpolation[wavData];
-wavStep=2^(shift2cent[entropyShift[wavNoteNum]]/1200)*pitchErrorElimiate;
+wavStep=cents2freqRatio[shift2cent[entropyShift[wavNoteNum]]]*pitchErrorElimiate;
 temp={Table[wavInterpolation[i],{i,1,Length[wavData],wavStep}],Table[wavInterpolation1[i],{i,1,Length[wavData],wavStep}]};
 ListPlay[temp,SampleRate->wavSampleRate,PlayRange->All]);
 If[DirectoryQ[OptionValue[exportTunedSamples]],ParallelDo[temp=entropyResultReconstruct[i];str=OptionValue[exportTunedSamples]<>ToString[noteNums[[i]]]<>".wav";Export[str,temp],{i,Length[noteNums]}];];
 
 (*save tune shift*)
-If[OptionValue[saveTuningFile]!="",Export[packageDirectory<>OptionValue[saveTuningFile],StringRiffle[Table[ToString[entropyShift[i]],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]," "],"Text"]];
+If[OptionValue[saveTuningFile]!="",Export[packageDirectory<>OptionValue[saveTuningFile]<>"_entropy_shift",StringRiffle[Table[ToString[entropyShift[i]],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]," "],"Text"]];
 
 (**********************************************************************************)
 (**********************************************************************************)

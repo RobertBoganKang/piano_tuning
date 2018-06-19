@@ -2,12 +2,13 @@
 
 (*pure piano sound tuner function*)
 Options[purePianoTuner]={noteRange->{"A0","C8"},noteStart->"A0",
-A4Frequency->440};
+A4Frequency->440,loadEntropyShift->""};
 purePianoTuner[waveFolder_,freqFile_,inharmonicityFile_,exportFolder_,OptionsPattern[]]:=Module[{freqRatio2cents,
-freqRatio2pitch,freqTable,i,ihFitScaling,ihfunc,ihFunction,ihFunctionExtraction,ihProperty,
-ihProperty2,ihPropertyFunction,j,largefunc,note2num,noteDict,noteNames,noteNums,noteRangeNum,
+freqRatio2pitch,freqTable,ihFitScaling,ihfunc,ihFunction,ihFunctionExtraction,ihProperty,
+ihProperty2,ihPropertyFunction,i,j,largefunc,note2num,noteDict,noteNames,noteNums,noteRangeNum,
 noteRangeO,noteStartN,noteStartO,num2freq,num2note,num2wb,purify,revNoteDict,smallfunc,temp,temp1,
-wavDirectory,wavNames,whiteBlackKeyDict},
+wavDirectory,wavNames,whiteBlackKeyDict,wavNoteRealFreqFun,entropyTuning,
+cents2freqRatio,pitch2freqRatio,ckDirectoryExistAndCreate},
 (*1. global parameters and functions*)
 (*note dictionaries*)
 noteDict=Association["C"->0,"C#"->1,"D"->2,"D#"->3,"E"->4,"F"->5,"F#"->6,"G"->7,"G#"->8,"A"->9,"A#"->10,"B"->11];
@@ -30,6 +31,10 @@ noteStartN=note2num[noteStartO]+1;
 (*frequency ratio utils*)
 freqRatio2cents[x_]:=1200.*Log[2,x];
 freqRatio2pitch[x_]:=12.*Log[2,x];
+cents2freqRatio[x_]:=2^(x/1200.);
+pitch2freqRatio[x_]:=2^(x/12.);
+(*directory handling*)
+ckDirectoryExistAndCreate[dir_]:=If[!DirectoryQ[dir],CreateDirectory[dir]];
 
 (**********************************************************************************)
 (**********************************************************************************)
@@ -73,8 +78,8 @@ noteNames=First[StringSplit[#,"."]]&/@wavNames;
 noteNums=If[LetterQ[StringTake[#,1]],note2num[#],ToExpression[#]-noteStartN]&/@noteNames;
 
 purify[x_]:=Module[{wavImport,wavIdealFreq,wavNoteNum,wavNoteFreq,wavData,wavLength,wavSampleRate,stretchFourier,wavFourierFreqRe,wavFourierFreqIm,
-wavInterpolationRe,wavInterpolationIm,wavNoteRealFreq,wavStepFreqSize,loopEnd,arrRe,arrIm,ptemp,wavStretch,wavFourier,wavFourier0,wavFourier1,
-wavFourierReconstructed0,wavFourierReconstructed1,wavFourierReconstructed,wavReconstruct,wavStretchedData},
+wavInterpolationRe,wavInterpolationIm,wavStepFreqSize,loopEnd,arrRe,arrIm,ptemp,wavStretch,wavFourier,wavFourier0,wavFourier1,
+wavFourierReconstructed0,wavFourierReconstructed1,wavFourierReconstructed,wavEntropyTuning,wavReconstruct,wavStretchedData,wavNoteRealFreq},
 wavImport=Import[wavDirectory<>wavNames[[x]],"Sound"];
 wavIdealFreq=num2freq[noteNums[[x]]];
 wavNoteNum=noteNums[[x]];
@@ -91,8 +96,9 @@ wavFourierFreqIm=Table[{(i-1)*wavSampleRate/wavLength,Im[s[[i]]]},{i,Length[s]}]
 wavInterpolationRe=Interpolation[wavFourierFreqRe];
 wavInterpolationIm=Interpolation[wavFourierFreqIm];
 
-(*tune to standard frequency*)
-wavNoteRealFreq=freqTable[wavNoteNum][[2]]/ihFunction[wavNoteNum,freqTable[wavNoteNum][[1]]];
+(*tune to target frequency*)
+wavNoteRealFreq=wavNoteRealFreqFun[x];
+wavEntropyTuning=entropyTuning[noteNums[[x]]];
 wavStepFreqSize=wavSampleRate/wavLength;
 
 (*loop*)
@@ -103,7 +109,7 @@ loopEnd=wavFourierFreqIm[[-1,1]];
 arrRe=Table[0,{i,wavLength}];
 arrIm=Table[0,{i,wavLength}];
 While[True,
-ptemp=wavNoteFreq*ihFunction[wavNoteNum,i/wavNoteRealFreq];
+ptemp=wavNoteFreq*wavEntropyTuning*ihFunction[wavNoteNum,i/wavNoteRealFreq];
 If[ptemp>loopEnd,Break[]];
 arrRe[[j]]=wavInterpolationRe[ptemp];
 arrIm[[j]]=wavInterpolationIm[ptemp];
@@ -129,6 +135,19 @@ Re[wavReconstruct]);
 wavStretchedData={wavStretch[wavData[[1]]],wavStretch[wavData[[2]]]};
 ListPlay[wavStretchedData,SampleRate->wavSampleRate,PlayRange->All]];
 
+(*generate real frequency*)
+wavNoteRealFreqFun=Association[Table[i->freqTable[noteNums[[i]]][[2]]/ihFunction[noteNums[[i]],freqTable[noteNums[[i]]][[1]]],{i,Length[noteNums]}]];
+(*load entropy shift tuning scheme*)
+If[OptionValue[loadEntropyShift]!="",
+temp=(ToExpression/@StringSplit[Import[OptionValue[loadEntropyShift],"Text"]])/10.;
+temp=Association[Table[i-noteStartN->temp[[i]],{i,Length[temp]}]];
+entropyTuning=Association[Table[noteNums[[i]]->cents2freqRatio[freqRatio2cents[wavNoteRealFreqFun[i]/num2freq[noteNums[[i]]]]+temp[noteNums[[i]]]],{i,Length[temp]}]];
+entropyTuning=Association[Table[i->entropyTuning[i]/entropyTuning[48],{i,Keys[entropyTuning]}]];,
+(*else: no entropy tuning shift, use ideal frequency scheme*)
+entropyTuning=Association[Table[i->1,{i,noteRangeNum[[1]],noteRangeNum[[2]]}]];
+];
+
+ckDirectoryExistAndCreate[exportFolder];
 ParallelDo[Print[noteNums[[i]]];
 Export[exportFolder<>ToString[noteNums[[i]]]<>".wav",purify[i]]
 ,{i,Length[noteNums]}];

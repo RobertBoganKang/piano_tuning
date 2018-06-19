@@ -22,7 +22,8 @@ wavCatchupWeightedAverageBands,wavCutFrequency,wavData,wavDirectory,wavFourier,w
 wavFourierCatchupPeakStartPosition,wavGuessOneOvertoneLengthPosition,wavIdealFreq,wavImport,wavLeastAnalyzeTime,
 wavNames,wavOneOvertoneSamples,wavPartitions,wavPartitionsLength,wavPeakOvertone,wavPeakPosition,wavSampleRate,
 wavTrimData,weightedAverageOvertone,whiteBlackKeyDict,freqPropertyTable,wavInterpolation,wavStep,
-pitchDeviationTable,sampleReconstruct,freqProperty,wavInterpolation1,i,x,A,B,n},
+pitchDeviationTable,sampleReconstruct,freqProperty,wavInterpolation1,i,x,A,B,n,cents2freqRatio,pitch2freqRatio,
+ckDirectoryExistAndCreate},
 (*1. global parameters and functions*)
 (*note dictionaries*)
 noteDict=Association["C"->0,"C#"->1,"D"->2,"D#"->3,"E"->4,"F"->5,"F#"->6,"G"->7,"G#"->8,"A"->9,"A#"->10,"B"->11];
@@ -34,7 +35,7 @@ note2num[x_]:=If[StringContainsQ[x,"#"],
 noteDict[ToUpperCase[StringTake[x,2]]]+12*ToExpression[StringDrop[x,2]]-9,
 noteDict[ToUpperCase[StringTake[x,1]]]+12*ToExpression[StringDrop[x,1]]-9];
 num2note[x_]:=revNoteDict[Mod[x+9,12]]<>ToString[Floor[(x+9)/12]];
-num2freq[x_]:=OptionValue[A4Frequency]*2^((x-48)/12);
+num2freq[x_]:=OptionValue[A4Frequency]*pitch2freqRatio[(x-48)/12];
 num2wb[x_]:=whiteBlackKeyDict[[Mod[x,12]+1]];
 (*note range*)
 noteRangeO=OptionValue[noteRange];
@@ -45,6 +46,10 @@ noteStartN=note2num[noteStartO]+1;
 (*frequency ratio utils*)
 freqRatio2cents[x_]:=1200.*Log[2,x];
 freqRatio2pitch[x_]:=12.*Log[2,x];
+cents2freqRatio[x_]:=2^(x/1200.);
+pitch2freqRatio[x_]:=2^(x/12.);
+(*directory handling*)
+ckDirectoryExistAndCreate[dir_]:=If[!DirectoryQ[dir],CreateDirectory[dir]];
 
 (**********************************************************************************)
 (**********************************************************************************)
@@ -278,7 +283,7 @@ temDict=Association[Table[i->0,{i,0,11}]];
 (**********************************************************************************)
 (**********************************************************************************)
 (*7. tuning piano data*)
-tunRestoreFunction[k_,n_]:=(num2freq[k]*2^((tunCurveFunction[k]+temDict[Mod[k,12]])/1200)*ihFunction[k,n]);
+tunRestoreFunction[k_,n_]:=(num2freq[k]*cents2freqRatio[tunCurveFunction[k]+temDict[Mod[k,12]]]*ihFunction[k,n]);
 tunRestoreCentsFunction[k_,n_]:=Log[2,tunRestoreFunction[k,n]/num2freq[k]/n]*1200;
 playFreq[x_]:=EmitSound[Play[Sin[2*Pi*t*x],{t,0,0.2},SampleRate->44100]];
 (*create tuning table*)
@@ -314,11 +319,12 @@ wavInterpolation=Interpolation[wavData];
 wavData=wavImport[[1,1,2]];
 wavData=wavData/Max[wavData];
 wavInterpolation1=Interpolation[wavData];
-wavStep=2^(c/1200);
+wavStep=cents2freqRatio[c/1200];
 temp={Table[wavInterpolation[i],{i,1,Length[wavData],wavStep}],Table[wavInterpolation1[i],{i,1,Length[wavData],wavStep}]};
 ListPlay[temp,SampleRate->wavSampleRate,PlayRange->All]);
 (*export sample files into exportTunedSamples Folder*)
 If[StringContainsQ[OptionValue[exportTunedSamples],{"/","\\"}],
+ckDirectoryExistAndCreate[OptionValue[exportTunedSamples]];
 pitchDeviationTable=Association[Table[freqPropertyTable[[k,1]]->freqRatio2cents[tunRestoreFunction[freqPropertyTable[[k,1]],freqPropertyTable[[k,2,1]]]/freqPropertyTable[[k,2,2]]],{k,Length[freqPropertyTable]}]];
 ParallelDo[Export[OptionValue[exportTunedSamples]<>ToString[noteNums[[i]]]<>".wav",sampleReconstruct[i,pitchDeviationTable[noteNums[[i]]]]],
 {i,Length[noteNums]}];
