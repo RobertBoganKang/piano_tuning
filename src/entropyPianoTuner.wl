@@ -246,7 +246,7 @@ If[OptionValue[loadTuneShift]=="",
 (*initialize tuning curve*)
 entropyShift=Association[Table[i->initialTuning[i]+entropyShiftIdeal[i],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]];
 (*print tuning curve dynamic plot*)
-Print[Dynamic[ListPlot[Table[{i,shift2cent[-entropyShiftIdeal[i]+entropyShift[i]]},{i,0,87}],PlotRange->All,Frame->True,Axes->False,PlotStyle->Pink,AspectRatio->1/10,ImageSize->1600,GridLines->{Table[i,{i,wavAnalyzeRange[[1]],wavAnalyzeRange[[2]]}],Automatic},FrameLabel->{"Key","Deviation (cent)"},GridLinesStyle->LightRed]]];
+Print[Dynamic[ListPlot[Table[{i,shift2cent[-entropyShiftIdeal[i]+entropyShift[i]]},{i,0,87}],PlotRange->All,Frame->True,Axes->False,PlotStyle->Pink,AspectRatio->1/10,ImageSize->1600,GridLines->{Table[i,{i,wavAnalyzeRange[[1]],wavAnalyzeRange[[2]]}],Automatic},FrameLabel->{None,"Deviation (cent)"},GridLinesStyle->LightRed]]];
 Do[(*step precision: cent*)
 entropyRoughSampleConstruct[x];
 
@@ -258,7 +258,7 @@ SetSharedVariable[entropyShift];
 noteChoicePoolO=DeleteCases[Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],48];
 
 entropyEvaluate:=(entropyShiftTrial=entropyShift;
-entropyShiftTrial[entropyRandomNote]=Round[entropyShiftTrial[entropyRandomNote]+entropyRoughness*entropyRandomDirection*If[x<1,RandomReal[],1]];
+entropyShiftTrial[entropyRandomNote]=Round[entropyShiftTrial[entropyRandomNote]+entropyRoughness*entropyRandomDirection*RandomReal[]];
 entropyTotal=Total[Table[RotateRight[entropyRoughSamples[i],Round[entropyShiftTrial[i]/entropyRoughness]],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]];
 entropyTotal=entropyTotal/Total[entropyTotal];
 entropyCost=Total[Table[If[entropyTotal[[i]]!=0.,-entropyTotal[[i]]*Log[entropyTotal[[i]]],0],{i,Length[entropyTotal]}]];);
@@ -272,14 +272,14 @@ entropyRandomDirection=RandomChoice[{1,-1}];
 entropyEvaluate;
 entropyCheck;
 (*another direction*)
-If[x<1||entropyCostLast<=entropyCost,entropyRandomDirection=-entropyRandomDirection;
-entropyEvaluate;];
+entropyRandomDirection=-entropyRandomDirection;
+entropyEvaluate;
 entropyCheck;
 ,{j,Length[noteChoicePoolO]}]];
 Print[entropyTotal=Total[Table[RotateRight[entropyRoughSamples[i],Round[entropyShift[i]/entropyRoughness]],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]];
 entropyPlotAxis=Table[pos2num[j],{j,1,Length[entropySamples[1]],entropyRoughness}];
-ListPlot[Transpose@{entropyPlotAxis,entropyTotal},Joined->True,PlotRange->All,Frame->True,Axes->False,PlotStyle->Pink,AspectRatio->1/10,ImageSize->1600,GridLines->{Table[i,{i,wavAnalyzeRange[[1]],wavAnalyzeRange[[2]]}],Automatic},FrameLabel->{"Key","Volume"},GridLinesStyle->LightBlue]],
-{x,{1,0.5}}];,
+ListPlot[Transpose@{entropyPlotAxis,entropyTotal},Joined->True,PlotRange->All,Frame->True,Axes->False,PlotStyle->Pink,AspectRatio->1/10,ImageSize->1600,GridLines->{Table[i,{i,wavAnalyzeRange[[1]],wavAnalyzeRange[[2]]}],Automatic},FrameLabel->{None,"Volume"},GridLinesStyle->LightBlue]],
+{x,{1,0.5,0.2}}];,
 
 (*else: read tune shift file*)
 temp=ToExpression/@StringSplit[Import[OptionValue[loadTuneShift],"Text"]];
@@ -345,8 +345,8 @@ If[OptionValue[saveTuningFile]!="",Export[packageDirectory<>OptionValue[saveTuni
 (**********************************************************************************)
 (*8. return result*)
 If[OptionValue[saveTuningFile]!="",
-Export[packageDirectory<>OptionValue[saveTuningFile]<>"_curve."<>OptionValue[reportFormat],entropyCurvePlot];
-Export[packageDirectory<>OptionValue[saveTuningFile]<>"_tuning."<>OptionValue[reportFormat],tunTable];
+Export[packageDirectory<>OptionValue[saveTuningFile]<>"_entropy_curve."<>OptionValue[reportFormat],entropyCurvePlot];
+Export[packageDirectory<>OptionValue[saveTuningFile]<>"_entropy_tuning."<>OptionValue[reportFormat],tunTable];
 ];
 Column[{tunTable,entropyCurvePlot}]
 ];
