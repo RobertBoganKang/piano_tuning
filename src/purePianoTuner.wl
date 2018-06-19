@@ -20,7 +20,7 @@ note2num[x_]:=If[StringContainsQ[x,"#"],
 noteDict[ToUpperCase[StringTake[x,2]]]+12*ToExpression[StringDrop[x,2]]-9,
 noteDict[ToUpperCase[StringTake[x,1]]]+12*ToExpression[StringDrop[x,1]]-9];
 num2note[x_]:=revNoteDict[Mod[x+9,12]]<>ToString[Floor[(x+9)/12]];
-num2freq[x_]:=OptionValue[A4Frequency]*2^((x-48)/12);
+num2freq[x_]:=OptionValue[A4Frequency]*pitch2freqRatio[x-48];
 num2wb[x_]:=whiteBlackKeyDict[[Mod[x,12]+1]];
 (*note range*)
 noteRangeO=OptionValue[noteRange];
