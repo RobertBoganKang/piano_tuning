@@ -191,7 +191,7 @@ If[!tunFile,
 ihProperty0=SortBy[Table[
 fitData=overtoneTable[noteNums[[i]]];
 fitData=fitData/fitData[[1]];
-fitData=Table[{i-1,fitData[[i]]/i},{i,Length[fitData]}];
+fitData=Table[{i,fitData[[i]]/i},{i,Length[fitData]}];
 (*A is always nearly 1, thus ignored*)
 Flatten@{noteNums[[i]],ihFitScaling*B/.FindFit[fitData,A*Sqrt[1+B*n^2],{{A,1},{B,0}},n]},{i,Length[noteNums]}],First];
 ihProperty=Select[ihProperty0,Last[#]>0&];

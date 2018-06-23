@@ -55,8 +55,8 @@ largefunc=Fit[Select[ihProperty,#[[1]]>=40&],{1,x},x];
 largefunc=(ihProperty[[-1,2]]-CoefficientList[largefunc,x][[-1]]*ihProperty[[-1,1]])+CoefficientList[largefunc,x][[-1]]*x;
 ihProperty2=Flatten[{Table[{x,smallfunc},{x,noteRangeNum[[1]]-100,temp[[1]]-1,12}],ihProperty,Table[{x,largefunc},{x,temp[[-1]]+1,noteRangeNum[[2]]+100,12}]},1];
 ihPropertyFunction=Interpolation[ihProperty2];
-(*restore ih overtone property function*)
-ihfunc[k_,n_]:=n*Sqrt[1+E^ihPropertyFunction[k]/ihFitScaling*(n-1)^2];ihfunc);
+(*restore ih overtone property function, make sure fundamental (when n=1) is 1*)
+ihfunc[k_,n_]:=n*Sqrt[1+E^ihPropertyFunction[k]/ihFitScaling*n^2]/Sqrt[1+E^ihPropertyFunction[k]/ihFitScaling];ihfunc);
 ihFunction=ihFunctionExtraction[ihProperty];
 
 (**********************************************************************************)
