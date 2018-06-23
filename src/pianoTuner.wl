@@ -323,7 +323,7 @@ wavStep=cents2freqRatio[c];
 temp={Table[wavInterpolation[i],{i,1,Length[wavData],wavStep}],Table[wavInterpolation1[i],{i,1,Length[wavData],wavStep}]};
 ListPlay[temp,SampleRate->wavSampleRate,PlayRange->All]);
 (*export sample files into exportTunedSamples Folder*)
-If[StringContainsQ[OptionValue[exportTunedSamples],{"/","\\"}],
+If[OptionValue[exportTunedSamples]!="",
 ckDirectoryExistAndCreate[OptionValue[exportTunedSamples]];
 pitchDeviationTable=Association[Table[freqPropertyTable[[k,1]]->freqRatio2cents[tunRestoreFunction[freqPropertyTable[[k,1]],freqPropertyTable[[k,2,1]]]/freqPropertyTable[[k,2,2]]],{k,Length[freqPropertyTable]}]];
 ParallelDo[Export[OptionValue[exportTunedSamples]<>ToString[noteNums[[i]]]<>".wav",sampleReconstruct[i,pitchDeviationTable[noteNums[[i]]]]],

@@ -4,7 +4,7 @@ packageDirectory=NotebookDirectory[];
 (*piano tuner function*)
 Options[entropyPianoTuner]={noteRange->{"A0","C8"},noteStart->"A0",
 A4Frequency->440,exportTunedSamples->"rbk",saveTuningFile->"",loadTuneShift->"",
-reportFormat->"pdf"};
+reportFormat->"pdf",peakSharpness->2};
 entropyPianoTuner[folder_,OptionsPattern[]]:=Module[{catchupFunction,catchupOvertone,catchupPosition,currentOvertone,
 currentOvertonePosition,entropyCheck,entropyCost,entropyCostLast,entropyCurvePlot,entropyEvaluate,entropyPlotAxis,
 entropyRandomDirection,entropyRandomNote,entropyResultReconstruct,entropyRoughness,entropyRoughSampleConstruct,
@@ -103,8 +103,8 @@ If[i<wavLeastAnalyzeTime/wavAnalyzePartitionTime,While[i<wavLeastAnalyzeTime/wav
 wavTrimData=Flatten[wavTrimData];
 (*fourier analysis*)
 wavFourier=Abs[Fourier[wavTrimData]];
-(*squared spectrum for analyze*)
-wavFourier=Table[{If[i==1,-100,Log[2.,((i-1)*wavSampleRate/Length[wavTrimData])/440]*12+48],wavFourier[[i]]^2},{i,IntegerPart[Length[wavFourier]/2]}];
+(*squared spectrum for analyze for default*)
+wavFourier=Table[{If[i==1,-100,Log[2.,((i-1)*wavSampleRate/Length[wavTrimData])/440]*12+48],wavFourier[[i]]^Abs[OptionValue[peakSharpness]]},{i,IntegerPart[Length[wavFourier]/2]}];
 wavFourier=Select[wavFourier,First[#]<wavAnalyzeRange[[2]]+5&&First[#]>=wavAnalyzeRange[[1]]-5&];
 (*two sides are 0*)
 Do[If[wavFourier[[i,1]]<wavNoteNum-5||wavFourier[[i,1]]>wavAnalyzeRange[[2]]-wavAnalyzePitchMargin,wavFourier[[i,2]]=0],{i,Length[wavFourier]}];
@@ -336,7 +336,9 @@ wavInterpolation1=Interpolation[wavData];
 wavStep=cents2freqRatio[shift2cent[entropyShift[wavNoteNum]]]*pitchErrorElimiate;
 temp={Table[wavInterpolation[i],{i,1,Length[wavData],wavStep}],Table[wavInterpolation1[i],{i,1,Length[wavData],wavStep}]};
 ListPlay[temp,SampleRate->wavSampleRate,PlayRange->All]);
-If[DirectoryQ[OptionValue[exportTunedSamples]],ParallelDo[temp=entropyResultReconstruct[i];str=OptionValue[exportTunedSamples]<>ToString[noteNums[[i]]]<>".wav";Export[str,temp],{i,Length[noteNums]}];];
+If[OptionValue[exportTunedSamples]!="",
+ckDirectoryExistAndCreate[OptionValue[exportTunedSamples]];
+ParallelDo[temp=entropyResultReconstruct[i];str=OptionValue[exportTunedSamples]<>ToString[noteNums[[i]]]<>".wav";Export[str,temp],{i,Length[noteNums]}];];
 
 (*save tune shift*)
 If[OptionValue[saveTuningFile]!="",Export[packageDirectory<>OptionValue[saveTuningFile]<>"_entropy_shift",StringRiffle[Table[ToString[entropyShift[i]],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]," "],"Text"]];
