@@ -190,7 +190,6 @@ If[!tunFile,
 (*function build*)
 ihProperty0=SortBy[Table[
 fitData=overtoneTable[noteNums[[i]]];
-fitData=fitData/fitData[[1]];
 fitData=Table[{i,fitData[[i]]/i},{i,Length[fitData]}];
 (*A is always nearly 1, thus ignored*)
 Flatten@{noteNums[[i]],ihFitScaling*B/.FindFit[fitData,A*Sqrt[1+B*n^2],{{A,1},{B,0}},n]},{i,Length[noteNums]}],First];
@@ -219,7 +218,7 @@ ihProperty2=Flatten[{Table[{x,smallfunc},{x,noteRangeNum[[1]]-100,temp[[1]]-1,12
 ihPropertyFunction=Interpolation[ihProperty2];
 ihPlot=Show[Plot[ihPropertyFunction[k],{k,noteRangeNum[[1]],noteRangeNum[[2]]},PlotRange->All,Axes->None,ImageSize->1600,Frame->True,AspectRatio->1/4,PlotStyle->Directive[Thick,Red],FrameLabel->{"Keys","Inharmonicity Value"}],Graphics[Flatten[{Table[{If[num2wb[ihProperty[[i,1]]],Black,Pink],If[num2wb[ihProperty[[i,1]]],PointSize[.006],PointSize[.008]],Point[ihProperty[[i]]]},{i,Length[ihProperty]}],Black,Table[Text[num2note[ihProperty[[i,1]]],{ihProperty[[i,1]],ihProperty[[i,2]]+0.3If[OddQ[ihProperty[[i,1]]],1,-1]},Background->White],{i,Length[ihProperty]}]}]],FrameTicks->{None,Automatic},GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,-100,100}]},GridLinesStyle->LightRed];
 (*restore ih overtone property function*)
-ihfunc[k_,n_]:=n*Sqrt[1+E^ihPropertyFunction[k]/ihFitScaling*(n-1)^2];ihfunc);
+ihfunc[k_,n_]:=n*Sqrt[1+E^ihPropertyFunction[k]/ihFitScaling*n^2]/Sqrt[1+E^ihPropertyFunction[k]/ihFitScaling];ihfunc);
 ihFunction=ihFunctionExtraction[ihProperty];
 
 (**********************************************************************************)
