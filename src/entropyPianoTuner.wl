@@ -63,7 +63,7 @@ tailSampleVolume=0.05;
 wavAnalyzePartitionTime=0.08;
 wavLeastAnalyzeTime=0.5;
 wavAnalyzeCutFrequency=10000;
-wavAnalyzeCutNoteNum=Floor[Log[2,wavAnalyzeCutFrequency/440.]*12+48.];
+wavAnalyzeCutNoteNum=Floor[Log[2,wavAnalyzeCutFrequency/OptionValue[A4Frequency]]*12+48.];
 (*catchup frequency peaks*)
 wavCatchupAnalyzeFrequencyBands=0.08;
 wavFourierCatchupPeakStart=0.8;
@@ -104,7 +104,7 @@ wavTrimData=Flatten[wavTrimData];
 (*fourier analysis*)
 wavFourier=Abs[Fourier[wavTrimData]];
 (*squared spectrum for analyze for default*)
-wavFourier=Table[{If[i==1,-100,Log[2.,((i-1)*wavSampleRate/Length[wavTrimData])/440]*12+48],wavFourier[[i]]^Abs[OptionValue[peakSharpness]]},{i,IntegerPart[Length[wavFourier]/2]}];
+wavFourier=Table[{If[i==1,-100,Log[2.,((i-1)*wavSampleRate/Length[wavTrimData])/OptionValue[A4Frequency]]*12+48],wavFourier[[i]]^Abs[OptionValue[peakSharpness]]},{i,IntegerPart[Length[wavFourier]/2]}];
 wavFourier=Select[wavFourier,First[#]<wavAnalyzeRange[[2]]+5&&First[#]>=wavAnalyzeRange[[1]]-5&];
 (*two sides are 0*)
 Do[If[wavFourier[[i,1]]<wavNoteNum-5||wavFourier[[i,1]]>wavAnalyzeRange[[2]]-wavAnalyzePitchMargin,wavFourier[[i,2]]=0],{i,Length[wavFourier]}];
