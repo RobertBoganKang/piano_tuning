@@ -2,6 +2,9 @@
 Algorithm is complicated and is written in [document](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/document/Piano%20Tuning%20Method.pdf).
 
 The function guide is written in [guide](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/document/User%20Guideline.pdf).
+
+The video introduction is at [youku](https://v.youku.com/v_show/id_XMzY5NzM1MzYwMA==.html), 
+[youtube](https://youtu.be/eQibnmYcq6g).
 ## Traditional Method
 Similar to [tunelab](https://www.tunelab-world.com/).
 This algorithm is fully construct by myself, it dose not violate the copyright. 
