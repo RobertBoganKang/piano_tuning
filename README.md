@@ -3,7 +3,7 @@ Algorithm is complicated and is written in [document](https://github.com/RobertB
 
 The function guide is written in [guide](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/document/User%20Guideline.pdf).
 
-The naive video introduction is at [youku](https://v.youku.com/v_show/id_XMzY5NzM1MzYwMA==.html), 
+A naive video introduction is at [youku](https://v.youku.com/v_show/id_XMzY5NzM1MzYwMA==.html), 
 [youtube](https://youtu.be/eQibnmYcq6g).
 ## Traditional Method
 Similar to [tunelab](https://www.tunelab-world.com/).
