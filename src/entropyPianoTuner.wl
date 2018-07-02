@@ -4,7 +4,7 @@ packageDirectory=NotebookDirectory[];
 (*piano tuner function*)
 Options[entropyPianoTuner]={noteRange->{"A0","C8"},noteStart->"A0",
 A4Frequency->440,exportTunedSamples->"rbk",saveTuningFile->"",loadTuneShift->"",
-reportFormat->"pdf",peakSharpness->2};
+reportFormat->"pdf",peakSharpness->2,midiFile->""};
 entropyPianoTuner[folder_,OptionsPattern[]]:=Module[{catchupFunction,catchupOvertone,catchupPosition,currentOvertone,
 currentOvertonePosition,entropyCheck,entropyCost,entropyCostLast,entropyCurvePlot,entropyEvaluate,entropyPlotAxis,
 entropyRandomDirection,entropyRandomNote,entropyResultReconstruct,entropyRoughness,entropyRoughSampleConstruct,
@@ -20,7 +20,8 @@ wavCutFrequency,wavData,wavDirectory,wavFourier,wavFourierAnalyzePrecision,wavFo
 wavFourierCatchupPeakStartPosition,wavFourierInterpolation,wavGuessOneOvertoneLengthPosition,wavIdealFreq,wavImport,
 wavInterpolation,wavInterpolationReconstruct,wavLeastAnalyzeTime,wavNames,wavNoteNum,wavOneOvertoneSamples,wavOvertone,
 wavPartitions,wavPartitionsLength,wavPeakOvertone,wavPeakPosition,wavPitchShiftSample,wavSampleRate,wavStep,wavTrimData,
-whiteBlackKeyDict,cent2shift,shift2cent,wavInterpolation1,i,x,cents2freqRatio,pitch2freqRatio,ckDirectoryExistAndCreate},
+whiteBlackKeyDict,cent2shift,shift2cent,wavInterpolation1,i,x,cents2freqRatio,pitch2freqRatio,ckDirectoryExistAndCreate,
+midGain,midifile,midLog,mid},
 (*1. global parameters and functions*)
 (*note dictionaries*)
 noteDict=Association["C"->0,"C#"->1,"D"->2,"D#"->3,"E"->4,"F"->5,"F#"->6,"G"->7,"G#"->8,"A"->9,"A#"->10,"B"->11];
@@ -50,7 +51,20 @@ ckDirectoryExistAndCreate[dir_]:=If[!DirectoryQ[dir],CreateDirectory[dir]];
 
 (**********************************************************************************)
 (**********************************************************************************)
-(*2. import samples*)
+(*2. tune for specific song*)
+midifile=OptionValue[midiFile];
+If[midifile!=""&&FileExistsQ[midifile],mid=Import[midifile,"MIDI"][[1]];
+temp2=10^-3;
+midGain=Association[Table[i->temp2,{i,noteRangeNum[[1]],noteRangeNum[[2]]}]];
+Do[midGain[note2num[mid[[i,1]]]]=1,{i,Length[mid]}];
+Print[ListPlot[Table[midGain[i],{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Joined->True,Filling->Bottom,PlotRange->All,FrameTicks->{True,False},Frame->True,Axes->False,PlotStyle->Pink,AspectRatio->1/30,ImageSize->1600,GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],None},FrameLabel->{None,"Midi Range"},GridLinesStyle->LightRed]];,
+(*else*)
+midGain=Association[Table[i->1,{i,noteRangeNum[[1]],noteRangeNum[[2]]}]];
+];
+
+(**********************************************************************************)
+(**********************************************************************************)
+(*3. import samples*)
 (*import samples*)
 wavDirectory=folder;
 wavNames=Import[wavDirectory];
@@ -82,7 +96,7 @@ shift2cent[x_]:=x*100*wavFourierAnalyzePrecision;
 
 (**********************************************************************************)
 (**********************************************************************************)
-(*3. construct spectrum*)
+(*4. construct spectrum*)
 (*construct spectrum samples*)
 entropySampleConstruct[x_]:=(
 wavImport=Import[wavDirectory<>wavNames[[x]],"Sound"];
@@ -130,7 +144,7 @@ entropyShiftIdeal=Association[result[[;;,1]]];
 
 (**********************************************************************************)
 (**********************************************************************************)
-(*4. capture frequency peaks*)
+(*5. capture frequency peaks*)
 (*catchup functions:
 input: next overtone position: positive is forward, negative is backward
 output: the overtone around that position*)
@@ -233,7 +247,7 @@ initialTuning=Association[Table[x->cent2shift[tunTrialFunction],{x,noteRangeNum[
 
 (**********************************************************************************)
 (**********************************************************************************)
-(*5. entropy model*)
+(*6. entropy model*)
 (*run entropy model*)
 (*pick rough tune samples from original samples*)
 entropyRoughSampleConstruct[x_]:=(entropyRoughness=x;
@@ -259,7 +273,7 @@ noteChoicePoolO=DeleteCases[Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],48]
 
 entropyEvaluate:=(entropyShiftTrial=entropyShift;
 entropyShiftTrial[entropyRandomNote]=Round[entropyShiftTrial[entropyRandomNote]+entropyRoughness*entropyRandomDirection*RandomReal[]];
-entropyTotal=Total[Table[RotateRight[entropyRoughSamples[i],Round[entropyShiftTrial[i]/entropyRoughness]],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]];
+entropyTotal=Total[Table[RotateRight[entropyRoughSamples[i],Round[entropyShiftTrial[i]/entropyRoughness]]*midGain[i],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]];
 entropyTotal=entropyTotal/Total[entropyTotal];
 entropyCost=Total[Table[If[entropyTotal[[i]]!=0.,-entropyTotal[[i]]*Log[entropyTotal[[i]]],0],{i,Length[entropyTotal]}]];);
 entropyCheck:=(If[entropyCostLast>entropyCost,entropyShift=entropyShiftTrial;
@@ -276,7 +290,7 @@ entropyRandomDirection=-entropyRandomDirection;
 entropyEvaluate;
 entropyCheck;
 ,{j,Length[noteChoicePoolO]}]];
-Print[entropyTotal=Total[Table[RotateRight[entropyRoughSamples[i],Round[entropyShift[i]/entropyRoughness]],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]];
+Print[entropyTotal=Total[Table[RotateRight[entropyRoughSamples[i],Round[entropyShift[i]/entropyRoughness]]*midGain[i],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]];
 entropyPlotAxis=Table[pos2num[j],{j,1,Length[entropySamples[1]],entropyRoughness}];
 ListPlot[Transpose@{entropyPlotAxis,entropyTotal},Joined->True,PlotRange->All,Frame->True,Axes->False,PlotStyle->Pink,AspectRatio->1/10,ImageSize->1600,GridLines->{Table[i,{i,wavAnalyzeRange[[1]],wavAnalyzeRange[[2]]}],Automatic},FrameLabel->{None,"Volume"},GridLinesStyle->LightBlue]],
 {x,{1,0.5,0.2}}];,
@@ -287,14 +301,14 @@ entropyShift=Association[Table[i->temp[[i-noteRangeNum[[1]]+1]],{i,noteRangeNum[
 ];
 (*plot the tuning curve*)
 entropyRoughSampleConstruct[1];
-entropyTotal=Total[Table[RotateRight[entropyRoughSamples[i],Round[entropyShift[i]/entropyRoughness]],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]];
+entropyTotal=Total[Table[RotateRight[entropyRoughSamples[i],Round[entropyShift[i]/entropyRoughness]]*midGain[i],{i,noteRangeNum[[1]],noteRangeNum[[2]]}]];
 entropyPlotAxis=Table[pos2num[j],{j,1,Length[entropySamples[1]],entropyRoughness}];
 entropyCurvePlot=Framed[Column[{Graphics[Flatten[{LightRed,Line[{{noteRangeNum[[1]],0},{noteRangeNum[[2]],0}}],Table[temp=shift2cent[entropyShift[x]-entropyShiftIdeal[x]];{If[Mod[x-3,12]==0,{GrayLevel[.4],Disk[{x,temp},.6]}],If[num2wb[x],Black,If[x==48,Red,LightGray]],Disk[{x,temp},If[num2wb[x],.22,.33]]},{x,noteRangeNum[[1]],noteRangeNum[[2]]}]}],ImageSize->1600,Frame->True,GridLines->{Table[i,{i,noteRangeNum[[1]],noteRangeNum[[2]]}],Table[i,{i,-100,100}]},GridLinesStyle->LightBlue,FrameLabel->{None,"Tuning Curve (cents)"},FrameTicks->{Automatic,Automatic}],
 ListPlot[Transpose@{entropyPlotAxis,entropyTotal},Joined->True,PlotRange->All,Frame->True,Axes->False,PlotStyle->Pink,AspectRatio->1/10,ImageSize->1600,GridLines->{Table[i,{i,wavAnalyzeRange[[1]],wavAnalyzeRange[[2]]}],Automatic},FrameLabel->{"Key","Volume"},GridLinesStyle->LightRed]}]];
 
 (**********************************************************************************)
 (**********************************************************************************)
-(*6. capture peaks and generate tuning table*)
+(*7. capture peaks and generate tuning table*)
 
 tunedPitchDeviationTable=Association[Table[temp=Sort[freqPeakTable[i]*pitchErrorElimiate*cents2freqRatio[shift2cent[entropyShift[i]]]];i->Table[{temp[[j]],freqRatio2cents[temp[[j]]/num2freq[i]/j]},{j,Length[temp]}],{i,Keys[freqPeakTable]}]];
 (*generate tuning table*)
@@ -322,7 +336,7 @@ TableSpacing->{.5,.3}]];
 
 (**********************************************************************************)
 (**********************************************************************************)
-(*7. save tuned samples and tuned shifts*)
+(*8. save tuned samples and tuned shifts*)
 entropyResultReconstruct[x_]:=(
 wavImport=Import[wavDirectory<>wavNames[[x]],"Sound"];
 wavNoteNum=noteNums[[x]];
@@ -345,7 +359,7 @@ If[OptionValue[saveTuningFile]!="",Export[packageDirectory<>OptionValue[saveTuni
 
 (**********************************************************************************)
 (**********************************************************************************)
-(*8. return result*)
+(*9. return result*)
 If[OptionValue[saveTuningFile]!="",
 Export[packageDirectory<>OptionValue[saveTuningFile]<>"_entropy_curve."<>OptionValue[reportFormat],entropyCurvePlot];
 Export[packageDirectory<>OptionValue[saveTuningFile]<>"_entropy_tuning."<>OptionValue[reportFormat],tunTable];
