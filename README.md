@@ -35,9 +35,10 @@ There are 2 fully sampled pianos as demo.
 ### Audio demo
 * Traditional Tuning Method [[1](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/tuned%200.mp3), [2](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/tuned%201.mp3), [3](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/tuned%202.mp3)]
 * Entropy Tuning Method [[1](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/entropy%200.mp3), [2](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/entropy%201.mp3), [3](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/entropy%202.mp3)]
+* Entropy tune for Song [[4_song](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/entropy%20song.mp3), [4_average](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/entropy%20average.mp3)]
 * Pure Sound Tuner  [[1](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/pure%200.mp3), [2](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/pure%201.mp3), [3](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/demo/audio/pure%202.mp3)]
 
-***MIDI File*** [[1](https://github.com/RobertBoganKang/midi_files/blob/master/%E9%92%A2%E7%90%B4%E5%90%8D%E6%9B%B2/124.MID), [2](https://github.com/RobertBoganKang/midi_files/blob/master/%E9%92%A2%E7%90%B4%E5%90%8D%E6%9B%B2/008.MID), [3](https://github.com/RobertBoganKang/midi_files/blob/master/%E9%92%A2%E7%90%B4%E5%90%8D%E6%9B%B2/082.MID)]
+***MIDI File*** [[1](https://github.com/RobertBoganKang/midi_files/blob/master/%E9%92%A2%E7%90%B4%E5%90%8D%E6%9B%B2/124.MID), [2](https://github.com/RobertBoganKang/midi_files/blob/master/%E9%92%A2%E7%90%B4%E5%90%8D%E6%9B%B2/008.MID), [3](https://github.com/RobertBoganKang/midi_files/blob/master/%E9%92%A2%E7%90%B4%E5%90%8D%E6%9B%B2/082.MID), [4](https://github.com/RobertBoganKang/piano_tuning/blob/master/res/samples/mozart.mid)]
 ### Traditional Method
 #### Wesleiter Upright 123
 The samples: [[link](https://github.com/RobertBoganKang/WesleiterUpright123); however I used older samples sampled in 2011].
